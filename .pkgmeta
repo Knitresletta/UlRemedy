@@ -1,0 +1,7 @@
+package-as: UlRemedy
+
+ignore:
+  - .pkgmeta
+  - .gitignore
+  - .github
+  - README.md
