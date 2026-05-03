@@ -4,7 +4,7 @@ local DEFAULTS = {
     keylink = true,
     repair  = true,
     junk    = true,
-    warbank = true,
+    warbank = false,
 }
 
 local function InitDB()
@@ -23,9 +23,9 @@ function UlRemedy.MoneyText(amount)
 end
 
 local FEATURES = {
-    { key = "keylink", label = "KeyLink"             },
-    { key = "repair",  label = "Auto Repair"         },
-    { key = "junk",    label = "Junk Seller"         },
+    { key = "keylink", label = "KeyLink" },
+    { key = "repair",  label = "Auto Repair" },
+    { key = "junk",    label = "Junk Seller" },
     { key = "warbank", label = "Warband Auto Deposit" },
 }
 
