@@ -1,0 +1,13 @@
+## Interface: 120005
+## Title: UlRemedy
+## Notes: Utility collection — keystone linking, auto repair, junk selling, warband deposit.
+## Author: knitresletta
+## Version: 1.0
+## Category: Knitresletta
+## SavedVariables: UlRemedyDB
+
+Core.lua
+KeyLink.lua
+AutoGuildRepair.lua
+AutoJunkSeller.lua
+WarbankAutoDeposit.lua
