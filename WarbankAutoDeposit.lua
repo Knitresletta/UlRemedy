@@ -12,7 +12,9 @@ frame:SetScript("OnEvent", function(self, event)
     end
     if event == "BANKFRAME_OPENED" then
         hasDeposited = false
+        return
     end
+    -- PLAYER_ACCOUNT_BANK_TAB_SLOTS_CHANGED: warband bank tab data is loaded
     if hasDeposited then return end
     if not UlRemedy.enabled.warbank then return end
     if not C_Bank.CanUseBank(Enum.BankType.Account) then return end
