@@ -1,4 +1,4 @@
-UlRemedy = { name = ... }
+UlRemedy = { name = "UlRemedy" }
 
 local DEFAULTS = {
     keylink = true,
@@ -11,6 +11,9 @@ local function InitDB()
     if not UlRemedyDB then UlRemedyDB = {} end
     for k, v in pairs(DEFAULTS) do
         if UlRemedyDB[k] == nil then UlRemedyDB[k] = v end
+    end
+    for k in pairs(UlRemedyDB) do
+        if DEFAULTS[k] == nil then UlRemedyDB[k] = nil end
     end
     UlRemedy.enabled = UlRemedyDB
 end
@@ -57,7 +60,7 @@ SlashCmdList["ULREMEDY"] = function(msg)
     if not matched then PrintHelp() end
 end
 
-local frame = CreateFrame("Frame")
+local frame = CreateFrame("Frame", "UlRemedyCoreFrame")
 frame:RegisterEvent("ADDON_LOADED")
 frame:RegisterEvent("PLAYER_LOGIN")
 

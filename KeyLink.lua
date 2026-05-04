@@ -25,7 +25,7 @@ local function FindKeystone()
     end
 end
 
-local frame = CreateFrame("Frame")
+local frame = CreateFrame("Frame", "UlRemedyKeyLinkFrame")
 for event in pairs(EVENT_TO_CHANNEL) do
     frame:RegisterEvent(event)
 end

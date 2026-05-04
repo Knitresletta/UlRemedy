@@ -1,6 +1,6 @@
 local hasDeposited = false
 
-local frame = CreateFrame("Frame")
+local frame = CreateFrame("Frame", "UlRemedyWarbankFrame")
 frame:RegisterEvent("BANKFRAME_OPENED")
 frame:RegisterEvent("BANKFRAME_CLOSED")
 frame:RegisterEvent("PLAYER_ACCOUNT_BANK_TAB_SLOTS_CHANGED")

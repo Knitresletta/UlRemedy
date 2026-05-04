@@ -37,6 +37,6 @@ local function SellJunk()
     end
 end
 
-local frame = CreateFrame("Frame")
+local frame = CreateFrame("Frame", "UlRemedyJunkFrame")
 frame:RegisterEvent("MERCHANT_SHOW")
 frame:SetScript("OnEvent", SellJunk)
