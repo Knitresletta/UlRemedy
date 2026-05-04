@@ -3,7 +3,7 @@ local function CanPayWithGuild(cost)
         return false
     end
     if not GetGuildBankWithdrawMoney then
-        return true
+        return false
     end
     local limit = GetGuildBankWithdrawMoney()
     return limit == -1 or limit >= cost
@@ -12,8 +12,8 @@ end
 local function Repair()
     if not UlRemedy.enabled.repair then return end
     if not CanMerchantRepair() then return end
-    local cost = GetRepairAllCost()
-    if not cost or cost <= 0 then return end
+    local cost, canRepair = GetRepairAllCost()
+    if not canRepair or not cost or cost <= 0 then return end
 
     if CanPayWithGuild(cost) then
         RepairAllItems(true)
