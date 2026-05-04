@@ -1,4 +1,5 @@
 local KEYSTONE_ID = 180653
+local lastReply = 0
 
 local EVENT_TO_CHANNEL = {
     CHAT_MSG_SAY                  = "SAY",
@@ -15,7 +16,10 @@ local function FindKeystone()
         for slot = 1, C_Container.GetContainerNumSlots(bag) do
             local info = C_Container.GetContainerItemInfo(bag, slot)
             if info and info.itemID == KEYSTONE_ID then
-                return info.hyperlink
+                local link = info.hyperlink
+                if link and link ~= "" then
+                    return link
+                end
             end
         end
     end
@@ -27,10 +31,13 @@ for event in pairs(EVENT_TO_CHANNEL) do
 end
 
 frame:SetScript("OnEvent", function(self, event, message)
-    if not UlRemedy.enabled.keylink then return end
-    if message == "!keys" then
+    if not UlRemedy.enabled or not UlRemedy.enabled.keylink then return end
+    if message:lower():match("^!keys%s*$") then
+        local now = GetTime()
+        if now - lastReply < 5 then return end
         local link = FindKeystone()
         if link then
+            lastReply = now
             SendChatMessage(link, EVENT_TO_CHANNEL[event])
         end
     end
