@@ -11,7 +11,6 @@ frame:SetScript("OnEvent", function(self, event)
         return
     end
     if event == "BANKFRAME_OPENED" then
-        hasDeposited = false
         return
     end
     -- PLAYER_ACCOUNT_BANK_TAB_SLOTS_CHANGED: warband bank tab data is loaded

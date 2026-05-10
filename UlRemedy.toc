@@ -11,3 +11,4 @@ KeyLink.lua
 AutoGuildRepair.lua
 AutoJunkSeller.lua
 WarbankAutoDeposit.lua
+AutoGroupInvite.lua

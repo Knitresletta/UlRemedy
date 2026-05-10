@@ -1,10 +1,11 @@
-UlRemedy = { name = "UlRemedy" }
+UlRemedy = { name = "UlRemedy", enabled = {} }
 
 local DEFAULTS = {
-    keylink = true,
-    repair  = true,
-    junk    = true,
-    warbank = false,
+    keylink     = true,
+    repair      = true,
+    junk        = true,
+    warbank     = false,
+    groupinvite = true,
 }
 
 local function InitDB()
@@ -26,10 +27,11 @@ function UlRemedy.MoneyText(amount)
 end
 
 local FEATURES = {
-    { key = "keylink", label = "KeyLink" },
-    { key = "repair",  label = "Auto Repair" },
-    { key = "junk",    label = "Junk Seller" },
-    { key = "warbank", label = "Warband Auto Deposit" },
+    { key = "keylink",     label = "KeyLink" },
+    { key = "repair",      label = "Auto Repair" },
+    { key = "junk",        label = "Junk Seller" },
+    { key = "warbank",     label = "Warband Auto Deposit" },
+    { key = "groupinvite", label = "Group Invite" },
 }
 
 local function PrintHelp()

@@ -1,0 +1,37 @@
+local function ShortName(name)
+    return (name or ""):match("^([^%-]+)") or name
+end
+
+local function IsFriend(name)
+    local short = ShortName(name)
+    for i = 1, C_FriendList.GetNumFriends() do
+        local info = C_FriendList.GetFriendInfoByIndex(i)
+        if info and ShortName(info.name) == short then
+            return true
+        end
+    end
+    return false
+end
+
+local function IsGuildmate(name)
+    local short = ShortName(name)
+    local count = GetNumGuildMembers()
+    for i = 1, count do
+        local memberName = GetGuildRosterInfo(i)
+        if memberName and ShortName(memberName) == short then
+            return true
+        end
+    end
+    return false
+end
+
+local frame = CreateFrame("Frame", "UlRemedyGroupInviteFrame")
+frame:RegisterEvent("PARTY_INVITE_REQUEST")
+
+frame:SetScript("OnEvent", function(self, event, inviterName)
+    if not UlRemedy.enabled.groupinvite then return end
+    if IsFriend(inviterName) or IsGuildmate(inviterName) then
+        AcceptGroup()
+        print(UlRemedy.name .. ": Auto-accepted invite from " .. ShortName(inviterName) .. ".")
+    end
+end)

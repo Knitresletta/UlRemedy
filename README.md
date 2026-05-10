@@ -1,6 +1,6 @@
 # UlRemedy
 
-A lightweight WoW utility addon combining four quality-of-life features into one. All features are toggleable via `/ur` commands and settings persist between sessions.
+A lightweight WoW utility addon combining five quality-of-life features into one. All features are toggleable via `/ur` commands and settings persist between sessions.
 
 ## Features
 
@@ -12,6 +12,8 @@ A lightweight WoW utility addon combining four quality-of-life features into one
 
 **Warband Auto Deposit** — Deposits warbound equipment and reagents into your Warband Bank automatically when you open it. Runs once per bank session.
 
+**Group Invite** — Automatically accepts group invitations from friends and guild members. Unknown inviters are ignored for manual handling.
+
 ## Commands
 
 | Command | Description |
@@ -21,6 +23,7 @@ A lightweight WoW utility addon combining four quality-of-life features into one
 | `/ur repair` | Toggle auto repair |
 | `/ur junk` | Toggle junk seller |
 | `/ur warbank` | Toggle warband auto deposit |
+| `/ur groupinvite` | Toggle group invite auto-accept |
 
 ## Installation
 
