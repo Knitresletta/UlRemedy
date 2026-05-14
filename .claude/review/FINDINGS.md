@@ -1,30 +1,21 @@
-# Review Findings — UlRemedy — 2026-05-04
+# Review Findings — UlRemedy — 2026-05-14 (Round 2: in-game testing)
 
 > Run `/team-staging` to fix these automatically.
 
 ## 🔴 Critical
 
-- [x] `KeyLink.lua:30` — `UlRemedy.enabled` is nil if a chat event fires before `ADDON_LOADED` (e.g. on `/reload` while in a group); causes hard crash `attempt to index a nil value`. *(Logic & Correctness, Safety & Robustness)*
-- [x] `AutoJunkSeller.lua:9` — `info.isQuestItem` and `info.isLocked` are never checked before calling `UseContainerItem`; selling a quest item is permanent data loss. *(Safety & Robustness)*
+- [x] `KeyLink.lua:4-10` — Regresjonsfix: `CHAT_MSG_PARTY_LEADER` og `CHAT_MSG_RAID_LEADER` ble fjernet i forrige runde basert på feil informasjon — disse eventene eksisterer faktisk og fyrer når party-/raid-LEDEREN snakker. Resultat: KeyLink svarer ikke når lederen (typisk keyholderen) skriver `!keys`. Legg tilbake i `EVENT_TO_CHANNEL`: `CHAT_MSG_PARTY_LEADER = "PARTY"` og `CHAT_MSG_RAID_LEADER = "RAID"`. *(Logic & Correctness)*
+
+- [x] `WarbankAutoDeposit.lua:21` — Consumables (f.eks. Hearty Feast) blir auto-deponert i warband bank fordi `C_Bank.AutoDepositItemsIntoBank(Enum.BankType.Account)` respekterer Blizzards tab-flagg for Consumables. Erstatt med manuell loop: iterer bager 0..`C_Container.NUM_TOTAL_EQUIPPED_BAG_SLOTS`, hopp over `info.classID == Enum.ItemClass.Consumable`, sjekk `C_Bank.IsItemAllowedInBankType(location, Enum.BankType.Account)`, finn tom slot via `C_Bank.FetchPurchasedBankTabData(Enum.BankType.Account)` + `C_Container.GetContainerNumSlots`, og flytt med `C_Container.PickupContainerItem` (pickup + drop). Bruk `ClearCursor()` rundt operasjonene. *(Logic & Correctness)*
 
 ## 🟡 Important
 
-- [x] `AutoJunkSeller.lua:10` — `GetItemInfo` is async; returns all nils on cache miss, silently skipping junk items with no feedback to the player. *(Logic & Correctness, Structure & Maintainability, Safety & Robustness)*
-- [x] `AutoJunkSeller.lua:13` — `UseContainerItem` called in a loop with no check that the merchant window is still open; if vendor closes mid-loop, item may be equipped or trigger an on-use effect. *(Logic & Correctness)*
-- [x] `WarbankAutoDeposit.lua:13` — `hasDeposited = false` reset inside `BANKFRAME_OPENED` is redundant (`BANKFRAME_CLOSED` already resets it) and the fall-through without an early `return` makes the control flow fragile. *(Logic & Correctness, Structure & Maintainability, Safety & Robustness)*
-- [x] `WarbankAutoDeposit.lua:21` — success message printed immediately after calling the async `C_Bank.AutoDepositItemsIntoBank`; fires even if nothing was deposited. *(Logic & Correctness, Structure & Maintainability, Safety & Robustness)*
-- [x] `AutoGuildRepair.lua:5` — if `GetGuildBankWithdrawMoney` is unavailable, `CanPayWithGuild` returns `true` and spends guild funds anyway; wrong safe default. *(Structure & Maintainability)*
-- [x] `AutoGuildRepair.lua:15` — `GetRepairAllCost()` returns `(cost, canRepair)`; only `cost` is captured. Should also check `canRepair` explicitly. *(Logic & Correctness, Safety & Robustness)*
-- [x] `KeyLink.lua:34` — no rate-limit on `SendChatMessage`; multiple players spamming `!keys` can trigger Blizzard's chat throttle and silently drop the reply. *(Logic & Correctness)*
-- [x] `KeyLink.lua:31` — `!keys` check is case-sensitive and not trimmed; `!Keys` or `!keys ` (trailing space) will not trigger a response. *(Safety & Robustness)*
-- [x] `KeyLink.lua:13` — `FindKeystone` returns `info.hyperlink` which can be an empty string `""` for items not yet fully loaded; `if link then` passes for `""` and `SendChatMessage("", channel)` is called silently. *(Safety & Robustness)*
-- [x] `Core.lua:1` — `name = ...` reads the WoW TOC vararg; silently becomes `nil` if the file is ever loaded outside the TOC loader, breaking every `UlRemedy.name` reference. *(Logic & Correctness, Structure & Maintainability, Safety & Robustness)*
-- [x] `WarbankAutoDeposit.lua:6` — `PLAYER_ACCOUNT_BANK_TAB_SLOTS_CHANGED` is registered but never used to confirm the deposit completed; the print fires before any slot changes, and the event itself is a no-op due to `hasDeposited` already being `true`. *(Logic & Correctness)*
+- [x] `AutoGuildRepair.lua:18-26` — Print-meldingen lyver om kilde til repair-gull. `GetGuildBankWithdrawMoney()` returnerer spillerens daglige withdraw-grense, ikke guild bank-saldoen. Hvis banken er tom men grensen høy, kaller `RepairAllItems(true)` Blizzards API som bruker guild for det den kan og personlig gull for resten — men vi printer "Repaired with guild funds". Fix: snapshot `GetMoney()` før `RepairAllItems`, regn ut `spentPersonal = before - GetMoney()` og `spentGuild = cost - spentPersonal`, print én av tre meldinger basert på faktisk gold-delta: kun guild, blandet (guild X / personal Y), eller kun personal. *(Logic & Correctness)*
+
+- [x] `AutoGroupInvite.lua:18-26` — `GetNumGuildMembers()` returnerer 0 til guild-rosteret er lastet (få sekunder etter login eller reload). Hvis en guildie inviterer rett etter login, avvises auto-accept. Fix: registrer `PLAYER_LOGIN`-event i AutoGroupInvite-framen og kall `C_GuildInfo.GuildRoster()` ved login for å trigge en refresh. *(Logic & Correctness)*
+
+- [x] `AutoGroupInvite.lua:31-37` — Ingen rate-limit på auto-accept; spam-invites blir alle akseptert. Legg til `lastAccept = 0` modul-lokal + 3 sek cooldown via `GetTime()` før `AcceptGroup()`. *(Safety & Robustness)*
 
 ## 🟢 Suggestions
 
-- [x] `KeyLink.lua:25` / `AutoGuildRepair.lua:29` / `AutoJunkSeller.lua:26` / `WarbankAutoDeposit.lua:2` / `Core.lua:60` — all five frames are anonymous; name them (e.g. `"UlRemedyKeyLinkFrame"`) for debuggability in `/framestack` and error traces. *(Structure & Maintainability)*
-- [ ] `KeyLink.lua:14` / `AutoJunkSeller.lua:6` — bag loop uses `NUM_BAG_SLOTS` (= 4) in two places; excludes the Reagent Bag (slot 5). Keystones can't go there, but grey reagents can. Centralise the constant or use `C_PlayerInfo.GetPlayerSlottedBagSlots()`. *(Logic & Correctness, Structure & Maintainability, Safety & Robustness)*
-- [ ] `Core.lua:25` — feature keys (`"keylink"`, `"repair"`, `"junk"`, `"warbank"`) are stringly-typed and duplicated across `FEATURES`, `DEFAULTS`, and all feature files; a single `UlRemedy.KEYS` table would make renames safe. *(Structure & Maintainability)*
-- [ ] `AutoGuildRepair.lua:15` — `GetRepairAllCost` second return `canRepair` ignored (partially covered by `CanMerchantRepair` but not fully equivalent). *(Logic & Correctness)*
-- [x] `Core.lua:InitDB` — `InitDB` adds missing keys from `DEFAULTS` but never prunes keys that no longer exist; stale feature keys accumulate in `UlRemedyDB` across addon versions. *(Logic & Correctness)*
+- [x] `Core.lua:51` — Legg til `SLASH_ULREMEDY2 = "/ulremedy"` som lang-alias for `/ur` — discoverability for nye brukere som ikke gjetter den korte forma. *(Structure & Maintainability)*

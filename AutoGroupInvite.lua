@@ -25,12 +25,22 @@ local function IsGuildmate(name)
     return false
 end
 
+local lastAccept = 0
+
 local frame = CreateFrame("Frame", "UlRemedyGroupInviteFrame")
 frame:RegisterEvent("PARTY_INVITE_REQUEST")
+frame:RegisterEvent("PLAYER_LOGIN")
 
 frame:SetScript("OnEvent", function(self, event, inviterName)
+    if event == "PLAYER_LOGIN" then
+        C_GuildInfo.GuildRoster()
+        return
+    end
     if not UlRemedy.enabled.groupinvite then return end
+    local now = GetTime()
+    if now - lastAccept < 3 then return end
     if IsFriend(inviterName) or IsGuildmate(inviterName) then
+        lastAccept = now
         AcceptGroup()
         print(UlRemedy.name .. ": Auto-accepted invite from " .. ShortName(inviterName) .. ".")
     end

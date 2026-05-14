@@ -4,9 +4,11 @@ local lastReply = 0
 local EVENT_TO_CHANNEL = {
     CHAT_MSG_SAY                  = "SAY",
     CHAT_MSG_PARTY                = "PARTY",
+    CHAT_MSG_PARTY_LEADER         = "PARTY",
     CHAT_MSG_INSTANCE_CHAT        = "INSTANCE_CHAT",
     CHAT_MSG_INSTANCE_CHAT_LEADER = "INSTANCE_CHAT",
     CHAT_MSG_RAID                 = "RAID",
+    CHAT_MSG_RAID_LEADER          = "RAID",
 }
 
 local function FindKeystone()

@@ -49,6 +49,7 @@ local function Toggle(key, label)
 end
 
 SLASH_ULREMEDY1 = "/ur"
+SLASH_ULREMEDY2 = "/ulremedy"
 SlashCmdList["ULREMEDY"] = function(msg)
     local cmd = strtrim(msg):lower()
     local matched = false
