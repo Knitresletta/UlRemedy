@@ -1,0 +1,7 @@
+{
+  "project_id": "1532656",
+  "default_release_type": "release",
+  "exclude": [
+    "REVIEW.md"
+  ]
+}
