@@ -4,8 +4,8 @@ local function SellJunk()
     local sold = 0
     local skipped = 0
 
-    for bag = 0, C_Container.NUM_TOTAL_EQUIPPED_BAG_SLOTS do
-        for slot = 1, C_Container.GetContainerNumSlots(bag) do
+    for bag = 0, (NUM_TOTAL_EQUIPPED_BAG_SLOTS or 4) do
+        for slot = 1, (C_Container.GetContainerNumSlots(bag) or 0) do
             local info = C_Container.GetContainerItemInfo(bag, slot)
             if info and info.hyperlink and info.quality == Enum.ItemQuality.Poor then
                 -- Fix 1: skip locked or quest items to avoid data loss

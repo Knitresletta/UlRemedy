@@ -6,6 +6,7 @@ local DEFAULTS = {
     junk        = true,
     warbank     = false,
     groupinvite = true,
+    ilvl        = true,
 }
 
 local function InitDB()
@@ -32,6 +33,7 @@ local FEATURES = {
     { key = "junk",        label = "Junk Seller" },
     { key = "warbank",     label = "Warband Auto Deposit" },
     { key = "groupinvite", label = "Group Invite" },
+    { key = "ilvl",        label = "Item Level Display" },
 }
 
 local function PrintHelp()
@@ -46,6 +48,7 @@ local function Toggle(key, label)
     UlRemedy.enabled[key] = not UlRemedy.enabled[key]
     local state = UlRemedy.enabled[key] and "|cff00ff00enabled|r" or "|cffff4444disabled|r"
     print(UlRemedy.name .. ": " .. label .. " " .. state .. ".")
+    if UlRemedy.RefreshItemLevels then UlRemedy.RefreshItemLevels() end
 end
 
 SLASH_ULREMEDY1 = "/ur"

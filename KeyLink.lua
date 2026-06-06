@@ -12,8 +12,8 @@ local EVENT_TO_CHANNEL = {
 }
 
 local function FindKeystone()
-    for bag = 0, C_Container.NUM_TOTAL_EQUIPPED_BAG_SLOTS do
-        for slot = 1, C_Container.GetContainerNumSlots(bag) do
+    for bag = 0, (NUM_TOTAL_EQUIPPED_BAG_SLOTS or 4) do
+        for slot = 1, (C_Container.GetContainerNumSlots(bag) or 0) do
             local info = C_Container.GetContainerItemInfo(bag, slot)
             if info and info.itemID == KEYSTONE_ID then
                 local link = info.hyperlink
@@ -32,7 +32,6 @@ end
 
 frame:SetScript("OnEvent", function(self, event, message, sender)
     if not UlRemedy.enabled or not UlRemedy.enabled.keylink then return end
-    if sender and sender:match("^([^%-]+)") == UnitName("player") then return end
     if message:lower():match("^!keys%s*$") then
         local now = GetTime()
         if now - lastReply < 5 then return end

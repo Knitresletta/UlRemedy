@@ -1,18 +1,20 @@
 # UlRemedy
 
-A lightweight WoW utility addon combining five quality-of-life features into one. All features are toggleable via `/ur` commands and settings persist between sessions.
+A lightweight WoW utility addon combining six quality-of-life features into one. All features are toggleable via `/ur` commands and settings persist between sessions.
 
 ## Features
 
-**KeyLink** — Automatically links your Mythic Keystone in chat when someone types `!keys`. Responds in the correct channel (say, party, raid, instance chat).
+**KeyLink** — Automatically links your Mythic Keystone in chat when anyone (including you) types `!keys`. Responds in the correct channel (say, party, raid, instance chat).
 
 **Auto Repair** — Repairs your gear automatically when you open a vendor. Prioritizes guild bank funds, falls back to personal gold.
 
 **Junk Seller** — Automatically sells all grey (poor quality) items when you open a vendor.
 
-**Warband Auto Deposit** — Deposits warbound equipment and reagents into your Warband Bank automatically when you open it. Runs once per bank session.
+**Warband Auto Deposit** — Deposits warbound items into your Warband Bank automatically when you open it (consumables are skipped). Runs once per bank session.
 
 **Group Invite** — Automatically accepts group invitations from friends and guild members. Unknown inviters are ignored for manual handling.
+
+**Item Level Display** — Shows the item level on equippable gear (weapons and armor) in your bags and bank.
 
 ## Commands
 
@@ -24,6 +26,7 @@ A lightweight WoW utility addon combining five quality-of-life features into one
 | `/ur junk` | Toggle junk seller |
 | `/ur warbank` | Toggle warband auto deposit |
 | `/ur groupinvite` | Toggle group invite auto-accept |
+| `/ur ilvl` | Toggle item level display |
 
 ## Installation
 
