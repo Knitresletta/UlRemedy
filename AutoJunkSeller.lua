@@ -8,14 +8,15 @@ local function SellJunk()
         for slot = 1, (C_Container.GetContainerNumSlots(bag) or 0) do
             local info = C_Container.GetContainerItemInfo(bag, slot)
             if info and info.hyperlink and info.quality == Enum.ItemQuality.Poor then
-                -- Fix 1: skip locked or quest items to avoid data loss
-                if info.isLocked or info.isQuestItem then
+                -- Fix 1: skip locked or quest items to avoid data loss.
+                -- GetContainerItemInfo has no isQuestItem field; query it directly.
+                local questInfo = C_Container.GetContainerItemQuestInfo(bag, slot)
+                local isQuestItem = questInfo and (questInfo.isQuestItem or questInfo.questID)
+                if info.isLocked or isQuestItem then
                     skipped = skipped + 1
                 else
                     local vendorPrice = select(11, GetItemInfo(info.hyperlink)) or 0
                     if vendorPrice > 0 then
-                        -- Fix 3: abort if the merchant window closed mid-loop
-                        if not MerchantFrame:IsShown() then return end
                         local quantity = info.stackCount or 1
                         C_Container.UseContainerItem(bag, slot)
                         total = total + (vendorPrice * quantity)
