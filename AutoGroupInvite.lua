@@ -13,6 +13,23 @@ local function IsFriend(name)
     return false
 end
 
+local function IsBattleNetFriend(name)
+    if not (C_BattleNet and BNGetNumFriends) then return false end
+    local short = ShortName(name)
+    local numFriends = BNGetNumFriends()
+    for i = 1, numFriends do
+        local numAccounts = C_BattleNet.GetFriendNumGameAccounts(i) or 0
+        for j = 1, numAccounts do
+            local ga = C_BattleNet.GetFriendGameAccountInfo(i, j)
+            if ga and ga.clientProgram == BNET_CLIENT_WOW
+                and ga.characterName and ShortName(ga.characterName) == short then
+                return true
+            end
+        end
+    end
+    return false
+end
+
 local function IsGuildmate(name)
     local short = ShortName(name)
     local count = GetNumGuildMembers()
@@ -37,11 +54,14 @@ frame:SetScript("OnEvent", function(self, event, inviterName)
         return
     end
     if not UlRemedy.enabled.groupinvite then return end
+    -- Keep the guild roster fresh; throttled by the client, harmless if repeated.
+    if IsInGuild() then C_GuildInfo.GuildRoster() end
     local now = GetTime()
     if now - lastAccept < 3 then return end
-    if IsFriend(inviterName) or IsGuildmate(inviterName) then
+    if IsFriend(inviterName) or IsBattleNetFriend(inviterName) or IsGuildmate(inviterName) then
         lastAccept = now
         AcceptGroup()
+        StaticPopup_Hide("PARTY_INVITE")
         print(UlRemedy.name .. ": Auto-accepted invite from " .. ShortName(inviterName) .. ".")
     end
 end)
