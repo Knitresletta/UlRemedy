@@ -1,6 +1,6 @@
 # UlRemedy
 
-A lightweight WoW utility addon combining six quality-of-life features into one. All features are toggleable via `/ur` commands and settings persist between sessions.
+A lightweight WoW utility addon combining seven quality-of-life features into one. All features are toggleable via `/ur` commands and settings persist between sessions.
 
 ## Features
 
@@ -14,6 +14,8 @@ A lightweight WoW utility addon combining six quality-of-life features into one.
 
 **Group Invite** — Automatically accepts group invitations from friends and guild members. Unknown inviters are ignored for manual handling.
 
+**Enhanced Trainer** — Adds a **Train All** button to the profession trainer window that trains every available skill you can afford in one click, and tells you if any were skipped for lack of gold.
+
 **Item Level Display** — Shows the item level on equippable gear (weapons and armor) in your bags and bank.
 
 ## Commands
@@ -26,6 +28,7 @@ A lightweight WoW utility addon combining six quality-of-life features into one.
 | `/ur junk` | Toggle junk seller |
 | `/ur warbank` | Toggle warband auto deposit |
 | `/ur groupinvite` | Toggle group invite auto-accept |
+| `/ur trainer` | Toggle the trainer Train All button |
 | `/ur ilvl` | Toggle item level display |
 
 ## Installation

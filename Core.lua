@@ -6,6 +6,7 @@ local DEFAULTS = {
     junk        = true,
     warbank     = false,
     groupinvite = true,
+    trainer     = true,
     ilvl        = true,
 }
 
@@ -33,6 +34,7 @@ local FEATURES = {
     { key = "junk",        label = "Junk Seller" },
     { key = "warbank",     label = "Warband Auto Deposit" },
     { key = "groupinvite", label = "Group Invite" },
+    { key = "trainer",     label = "Enhanced Trainer" },
     { key = "ilvl",        label = "Item Level Display" },
 }
 
