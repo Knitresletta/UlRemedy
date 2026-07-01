@@ -1,8 +1,8 @@
-## Interface: 120005
+## Interface: 120007
 ## Title: UlRemedy
 ## Notes: Utility collection — keystone linking, auto repair, junk selling, warband deposit, group invite, item level display.
 ## Author: knitresletta
-## Version: 1.0.5
+## Version: 1.0.6
 ## Category: Knitresletta
 ## SavedVariables: UlRemedyDB
 
