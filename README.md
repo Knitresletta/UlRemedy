@@ -22,7 +22,7 @@ A lightweight WoW utility addon combining eleven quality-of-life features into o
 
 **Cinematic Skip** — Skips movies and in-game cutscenes you have already seen on any character. Hold **Shift** as one starts to watch it again.
 
-**Auto Gossip** — Clicks through NPC dialog automatically when it's safe: exactly one plain chat option, no quests on the NPC, and never inside instances. Hold **Shift** to leave the dialog open.
+**Auto Gossip** — Clicks through NPC dialog automatically — "I'm ready" prompts, dungeon transports and similar — when it's safe: exactly one plain chat option and no quests on the NPC. Vendors, taxis and multi-option dialogs are never touched. Hold **Shift** to leave the dialog open.
 
 **Cursor Ring** — A dusty purple ring that follows your mouse cursor, with a dark outline and a faint silver glow so it stays visible on both light and dark backgrounds.
 

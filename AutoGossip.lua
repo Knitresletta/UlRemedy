@@ -1,7 +1,9 @@
--- Auto Gossip: clicks through NPC dialog automatically, but only in the
--- safest case — exactly one option, plain chat-bubble icon, no quests on the
--- NPC, and never inside an instance (dialog there can start boss encounters).
--- Hold Shift to leave the dialog open.
+-- Auto Gossip: clicks through NPC dialog automatically — "I'm ready",
+-- "take me there", dungeon transport books and the like — but only when the
+-- dialog has exactly one option with the plain chat-bubble icon and the NPC
+-- has no quests. Multi-option dialogs, vendors/taxis (different icons) and
+-- special UIs like the delve difficulty picker (not gossip-driven at all)
+-- are never touched. Hold Shift to leave the dialog open.
 
 -- Interface/GossipFrame/GossipGossipIcon — the plain "just talk" bubble.
 -- Vendor, taxi, binder etc. use different icons, so this guard keeps the
@@ -14,7 +16,6 @@ frame:RegisterEvent("GOSSIP_SHOW")
 frame:SetScript("OnEvent", function()
     if not UlRemedy.enabled.gossip then return end
     if IsShiftKeyDown() then return end
-    if IsInInstance() then return end
     if #C_GossipInfo.GetAvailableQuests() > 0 then return end
     if #C_GossipInfo.GetActiveQuests() > 0 then return end
 
