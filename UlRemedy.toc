@@ -2,7 +2,7 @@
 ## Title: UlRemedy
 ## Notes: Utility collection — keystone linking, auto repair, junk selling, warband deposit, group invite, enhanced trainer, item level display, quest automation, cinematic skip, auto gossip, cursor ring.
 ## Author: knitresletta
-## Version: 1.2.0
+## Version: 1.2.1
 ## Category: Knitresletta
 ## SavedVariables: UlRemedyDB
 

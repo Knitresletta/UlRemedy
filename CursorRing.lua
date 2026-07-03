@@ -2,11 +2,16 @@
 --
 -- The WoW API cannot sample screen pixels, so true dynamic contrast against
 -- the background is impossible. Instead the ring is two-tone — a dark outline
--- under a bright gold core — plus an additive pulsing glow, which stays
--- visible on both light and dark backgrounds. UIParent hides during
--- cinematics, so the ring (parented to it) disappears there for free.
+-- under a bright core — plus an additive pulsing glow, which stays visible on
+-- both light and dark backgrounds. UIParent hides during cinematics, so the
+-- ring (parented to it) disappears there for free.
+--
+-- The textures are our own white-with-alpha TGAs (media/). Blizzard's
+-- cooldown-ping art has no alpha channel — it only works with ADD blending
+-- and renders as a solid black square in normal blend mode.
 
-local RING_TEXTURE = "Interface\\Cooldown\\ping4"
+local RING_TEXTURE = "Interface\\AddOns\\UlRemedy\\media\\ring.tga"
+local GLOW_TEXTURE = "Interface\\AddOns\\UlRemedy\\media\\glow.tga"
 local SIZE = 30
 
 local ring = CreateFrame("Frame", "UlRemedyCursorRing", UIParent)
@@ -26,7 +31,7 @@ core:SetVertexColor(0.55, 0.40, 0.70) -- dusty dark purple
 core:SetAllPoints()
 
 local glow = ring:CreateTexture(nil, "OVERLAY")
-glow:SetTexture(RING_TEXTURE)
+glow:SetTexture(GLOW_TEXTURE)
 glow:SetBlendMode("ADD")
 glow:SetVertexColor(0.85, 0.88, 0.95) -- cool silver
 glow:SetPoint("CENTER")
