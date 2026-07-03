@@ -24,7 +24,7 @@ A lightweight WoW utility addon combining eleven quality-of-life features into o
 
 **Auto Gossip** — Clicks through NPC dialog automatically when it's safe: exactly one plain chat option, no quests on the NPC, and never inside instances. Hold **Shift** to leave the dialog open.
 
-**Cursor Ring** — A glowing gold ring that follows your mouse cursor, with a dark outline and soft pulse so it stays visible on both light and dark backgrounds.
+**Cursor Ring** — A dusty purple ring that follows your mouse cursor, with a dark outline and a faint silver glow so it stays visible on both light and dark backgrounds.
 
 ## Commands
 

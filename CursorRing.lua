@@ -2,8 +2,8 @@
 --
 -- The WoW API cannot sample screen pixels, so true dynamic contrast against
 -- the background is impossible. Instead the ring is two-tone — a dark outline
--- under a bright core — plus an additive pulsing glow, which stays visible on
--- both light and dark backgrounds. UIParent hides during cinematics, so the
+-- under a bright core — plus a faint static additive glow, which stays
+-- visible on both light and dark backgrounds. UIParent hides during cinematics, so the
 -- ring (parented to it) disappears there for free.
 --
 -- The textures are our own white-with-alpha TGAs (media/). Blizzard's
@@ -36,15 +36,7 @@ glow:SetBlendMode("ADD")
 glow:SetVertexColor(0.85, 0.88, 0.95) -- cool silver
 glow:SetPoint("CENTER")
 glow:SetSize(SIZE * 1.7, SIZE * 1.7)
-glow:SetAlpha(0.3)
-
-local pulse = glow:CreateAnimationGroup()
-pulse:SetLooping("BOUNCE")
-local fade = pulse:CreateAnimation("Alpha")
-fade:SetFromAlpha(0.15)
-fade:SetToAlpha(0.55)
-fade:SetDuration(0.9)
-fade:SetSmoothing("IN_OUT")
+glow:SetAlpha(0.15)
 
 ring:SetScript("OnUpdate", function(self)
     local x, y = GetCursorPosition()
@@ -56,9 +48,7 @@ end)
 function UlRemedy.UpdateCursorRing()
     if UlRemedy.enabled.cursor then
         ring:Show()
-        pulse:Play()
     else
-        pulse:Stop()
         ring:Hide()
     end
 end
