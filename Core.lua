@@ -8,6 +8,15 @@ local DEFAULTS = {
     groupinvite = true,
     trainer     = true,
     ilvl        = true,
+    quest       = true,
+    cinematic   = true,
+    gossip      = true,
+    cursor      = true,
+}
+
+-- Persistent data tables (not toggles) that the prune below must leave alone.
+local DATA_KEYS = {
+    seenCinematics = true,
 }
 
 local function InitDB()
@@ -16,7 +25,7 @@ local function InitDB()
         if UlRemedyDB[k] == nil then UlRemedyDB[k] = v end
     end
     for k in pairs(UlRemedyDB) do
-        if DEFAULTS[k] == nil then UlRemedyDB[k] = nil end
+        if DEFAULTS[k] == nil and not DATA_KEYS[k] then UlRemedyDB[k] = nil end
     end
     UlRemedy.enabled = UlRemedyDB
 end
@@ -36,6 +45,10 @@ local FEATURES = {
     { key = "groupinvite", label = "Group Invite" },
     { key = "trainer",     label = "Enhanced Trainer" },
     { key = "ilvl",        label = "Item Level Display" },
+    { key = "quest",       label = "Auto Quest" },
+    { key = "cinematic",   label = "Cinematic Skip" },
+    { key = "gossip",      label = "Auto Gossip" },
+    { key = "cursor",      label = "Cursor Ring" },
 }
 
 local function PrintHelp()
@@ -51,6 +64,7 @@ local function Toggle(key, label)
     local state = UlRemedy.enabled[key] and "|cff00ff00enabled|r" or "|cffff4444disabled|r"
     print(UlRemedy.name .. ": " .. label .. " " .. state .. ".")
     if UlRemedy.RefreshItemLevels then UlRemedy.RefreshItemLevels() end
+    if UlRemedy.UpdateCursorRing then UlRemedy.UpdateCursorRing() end
 end
 
 SLASH_ULREMEDY1 = "/ur"

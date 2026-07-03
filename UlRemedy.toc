@@ -1,8 +1,8 @@
 ## Interface: 120007
 ## Title: UlRemedy
-## Notes: Utility collection — keystone linking, auto repair, junk selling, warband deposit, group invite, enhanced trainer, item level display.
+## Notes: Utility collection — keystone linking, auto repair, junk selling, warband deposit, group invite, enhanced trainer, item level display, quest automation, cinematic skip, auto gossip, cursor ring.
 ## Author: knitresletta
-## Version: 1.1.0
+## Version: 1.2.0
 ## Category: Knitresletta
 ## SavedVariables: UlRemedyDB
 
@@ -14,3 +14,7 @@ WarbankAutoDeposit.lua
 AutoGroupInvite.lua
 EnhancedTrainer.lua
 ItemLevelDisplay.lua
+AutoQuest.lua
+AutoCinematicSkip.lua
+AutoGossip.lua
+CursorRing.lua

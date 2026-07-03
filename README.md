@@ -1,6 +1,6 @@
 # UlRemedy
 
-A lightweight WoW utility addon combining seven quality-of-life features into one. All features are toggleable via `/ur` commands and settings persist between sessions.
+A lightweight WoW utility addon combining eleven quality-of-life features into one. All features are toggleable via `/ur` commands and settings persist between sessions.
 
 ## Features
 
@@ -18,6 +18,14 @@ A lightweight WoW utility addon combining seven quality-of-life features into on
 
 **Item Level Display** — Shows the item level on equippable gear (weapons and armor) in your bags and bank.
 
+**Auto Quest** — Accepts quest offers and turns in completed quests automatically. Quests with more than one reward choice stay open so you pick the reward yourself. Hold **Shift** while talking to an NPC to bypass the automation.
+
+**Cinematic Skip** — Skips movies and in-game cutscenes you have already seen on any character. Hold **Shift** as one starts to watch it again.
+
+**Auto Gossip** — Clicks through NPC dialog automatically when it's safe: exactly one plain chat option, no quests on the NPC, and never inside instances. Hold **Shift** to leave the dialog open.
+
+**Cursor Ring** — A glowing gold ring that follows your mouse cursor, with a dark outline and soft pulse so it stays visible on both light and dark backgrounds.
+
 ## Commands
 
 | Command | Description |
@@ -30,6 +38,10 @@ A lightweight WoW utility addon combining seven quality-of-life features into on
 | `/ur groupinvite` | Toggle group invite auto-accept |
 | `/ur trainer` | Toggle the trainer Train All button |
 | `/ur ilvl` | Toggle item level display |
+| `/ur quest` | Toggle quest auto-accept/turn-in |
+| `/ur cinematic` | Toggle cinematic skip |
+| `/ur gossip` | Toggle auto gossip |
+| `/ur cursor` | Toggle the cursor ring |
 
 ## Installation
 
