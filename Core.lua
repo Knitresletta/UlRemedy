@@ -12,6 +12,7 @@ local DEFAULTS = {
     cinematic   = true,
     gossip      = true,
     cursor      = true,
+    companion   = true,
 }
 
 -- Persistent data tables (not toggles) that the prune below must leave alone.
@@ -49,6 +50,7 @@ local FEATURES = {
     { key = "cinematic",   label = "Cinematic Skip" },
     { key = "gossip",      label = "Auto Gossip" },
     { key = "cursor",      label = "Cursor Ring" },
+    { key = "companion",   label = "Auto Companion" },
 }
 
 local function PrintHelp()

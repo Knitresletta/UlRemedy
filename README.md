@@ -1,6 +1,6 @@
 # UlRemedy
 
-A lightweight quality-of-life collection — eleven small utilities in one WoW addon, each individually toggleable with a slash command. Settings persist between sessions.
+A lightweight quality-of-life collection — twelve small utilities in one WoW addon, each individually toggleable with a slash command. Settings persist between sessions.
 
 ## Features
 
@@ -26,6 +26,8 @@ A lightweight quality-of-life collection — eleven small utilities in one WoW a
 
 **Cursor Ring** — A dusty purple ring with a soft silver glow that follows your mouse cursor, visible on light and dark backgrounds alike.
 
+**Auto Companion** — Summons a random favorite battle pet after loading screens if you don't have one out. Never in combat, while dead or stealthed, or in arenas/battlegrounds. Dismissing a pet manually sticks until the next loading screen.
+
 Hold **Shift** while interacting to bypass the quest, gossip and cinematic automation for that one interaction.
 
 ## Commands
@@ -45,6 +47,7 @@ Type `/ur` to list every feature and its current state.
 | `/ur cinematic` | Toggle cinematic skip |
 | `/ur gossip` | Toggle auto gossip |
 | `/ur cursor` | Toggle the cursor ring |
+| `/ur companion` | Toggle auto companion summon |
 
 ## Installation
 
