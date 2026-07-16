@@ -38,7 +38,8 @@ local function DepositFilteredItems()
             local info = C_Container.GetContainerItemInfo(bag, slot)
             if info and info.hyperlink and not info.isLocked then
                 local classID = GetItemClassID(info)
-                if not BLACKLIST_CLASS[classID] then
+                local isJunk = info.quality == Enum.ItemQuality.Poor
+                if not isJunk and not BLACKLIST_CLASS[classID] then
                     local location = ItemLocation:CreateFromBagAndSlot(bag, slot)
                     if C_Bank.IsItemAllowedInBankType(Enum.BankType.Account, location) then
                         local dest = emptySlots[nextEmpty]
@@ -67,9 +68,9 @@ local function TryDeposit()
     hasDeposited = true
     local count = DepositFilteredItems()
     if count > 0 then
-        print(UlRemedy.name .. ": Auto-deposited " .. count .. " item(s) to warband bank (consumables skipped).")
+        print(UlRemedy.name .. ": Auto-deposited " .. count .. " item(s) to warband bank (consumables and junk skipped).")
     else
-        print(UlRemedy.name .. ": Warband — nothing to deposit (consumables skipped).")
+        print(UlRemedy.name .. ": Warband — nothing to deposit (consumables and junk skipped).")
     end
 end
 
