@@ -1,8 +1,9 @@
 -- Auto Quest: accepts quest offers and turns in completed quests automatically.
 -- Hold Shift while interacting with an NPC to bypass the automation.
 --
--- Quests with more than one reward choice are left open so the player picks
--- manually. Greeting/gossip selection picks ONE quest per event and returns —
+-- Quests with more than one reward choice, or that cost gold/currency to
+-- turn in, are left open so the player decides manually.
+-- Greeting/gossip selection picks ONE quest per event and returns —
 -- selecting a quest replaces the NPC panel, and the event re-fires after each
 -- turn-in, so looping over the full list here would act on a stale panel.
 
@@ -51,9 +52,12 @@ function handlers.QUEST_DETAIL()
 end
 
 function handlers.QUEST_PROGRESS()
-    if IsQuestCompletable() then
-        CompleteQuest()
-    end
+    if not IsQuestCompletable() then return end
+    -- Turn-ins that cost gold or currency are never automated — the panel
+    -- stays open so the player decides. Required quest items are fine.
+    if GetQuestMoneyToGet and (GetQuestMoneyToGet() or 0) > 0 then return end
+    if GetNumQuestCurrencies and (GetNumQuestCurrencies() or 0) > 0 then return end
+    CompleteQuest()
 end
 
 function handlers.QUEST_COMPLETE()
