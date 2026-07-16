@@ -13,6 +13,8 @@ local DEFAULTS = {
     gossip      = true,
     cursor      = true,
     companion   = true,
+    marker      = false,
+    markerfix   = false,
 }
 
 -- Persistent data tables (not toggles) that the prune below must leave alone.
@@ -51,6 +53,8 @@ local FEATURES = {
     { key = "gossip",      label = "Auto Gossip" },
     { key = "cursor",      label = "Cursor Ring" },
     { key = "companion",   label = "Auto Companion" },
+    { key = "marker",      label = "Auto Marker" },
+    { key = "markerfix",   label = "Correct Marker on Player" },
 }
 
 local function PrintHelp()
