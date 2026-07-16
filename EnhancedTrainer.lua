@@ -1,40 +1,54 @@
 -- Enhanced Trainer: adds a "Train All" button to the profession trainer frame
--- that trains every available skill you can afford, in one click.
+-- that trains every available skill in one click.
 --
--- Note: the trainer service list refreshes asynchronously after a purchase, so
--- we do a SINGLE forward pass (never re-scan mid-loop) and track spendable money
--- locally to decide affordability — mirroring how the list behaves in-game.
+-- Retail returns category as the SECOND value from GetTrainerServiceInfo (the
+-- Classic-era rank return is gone). BuyTrainerService(0) is an undocumented
+-- retail behavior: index 0 trains every available service server-side in one
+-- call, which sidesteps the list re-sorting between individual purchases.
 
 function UlRemedy.TrainAllAvailable()
-    local money = GetMoney()
-    local trained, spent, leftover = 0, 0, false
-    for i = 1, GetNumTrainerServices() do
-        local _, _, category = GetTrainerServiceInfo(i)
+    local available, cost = 0, 0
+    local total = GetNumTrainerServices()
+    local counts = {}
+    for i = 1, total do
+        local _, category = GetTrainerServiceInfo(i)
+        category = category or "?"
+        counts[category] = (counts[category] or 0) + 1
         if category == "available" then
-            local cost = GetTrainerServiceCost(i) or 0
-            if cost <= money then
-                BuyTrainerService(i)
-                money = money - cost
-                spent = spent + cost
-                trained = trained + 1
-            else
-                leftover = true
-            end
+            available = available + 1
+            cost = cost + (GetTrainerServiceCost(i) or 0)
         end
     end
-    return trained, spent, leftover
+    if available == 0 then
+        -- Diagnostic breakdown: shows what the scan actually saw, so a wrong
+        -- category assumption or an empty list is visible straight in chat.
+        local detail
+        if total == 0 then
+            detail = "trainer list is empty"
+        else
+            local parts = {}
+            for cat, n in pairs(counts) do
+                table.insert(parts, n .. " " .. cat)
+            end
+            table.sort(parts)
+            detail = table.concat(parts, ", ")
+        end
+        return 0, 0, false, detail
+    end
+    local leftover = cost > GetMoney()
+    BuyTrainerService(0)
+    return available, cost, leftover
 end
 
 local function OnTrainAllClick()
     if not UlRemedy.enabled.trainer then return end
-    local trained, spent, leftover = UlRemedy.TrainAllAvailable()
-    if trained > 0 then
-        print(UlRemedy.name .. ": Trained " .. trained .. " skill(s) for " .. UlRemedy.MoneyText(spent) .. ".")
-    elseif not leftover then
-        print(UlRemedy.name .. ": Nothing available to train.")
-    end
-    if leftover then
-        print(UlRemedy.name .. ": Not enough gold to train everything.")
+    local available, cost, leftover, detail = UlRemedy.TrainAllAvailable()
+    if available == 0 then
+        print(UlRemedy.name .. ": Nothing available to train (" .. detail .. ").")
+    elseif leftover then
+        print(UlRemedy.name .. ": Not enough gold for everything (" .. UlRemedy.MoneyText(cost) .. " needed) — trained what you could afford.")
+    else
+        print(UlRemedy.name .. ": Trained " .. available .. " skill(s) for " .. UlRemedy.MoneyText(cost) .. ".")
     end
 end
 
