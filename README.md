@@ -1,16 +1,16 @@
 # UlRemedy
 
-A lightweight quality-of-life collection — twelve small utilities in one WoW addon, each individually toggleable with a slash command. Settings persist between sessions.
+A lightweight quality-of-life collection — thirteen small utilities in one WoW addon, each individually toggleable with a slash command. Settings persist between sessions.
 
 ## Features
 
 **KeyLink** — Links your Mythic Keystone in chat when anyone (including you) types `!keys`, responding in the right channel.
 
-**Auto Repair** — Repairs your gear when you open a vendor. Guild bank funds first, your own gold as fallback.
+**Auto Repair** — Repairs your gear when you open a vendor. Guild bank funds first when they actually cover the cost, your own gold as fallback — and it only reports success once the repair is confirmed.
 
 **Junk Seller** — Sells all grey items when you open a vendor.
 
-**Warband Auto Deposit** — Deposits warbound items into the Warband Bank when you open it (consumables are skipped). Off by default.
+**Warband Auto Deposit** — Deposits warbound items into the Warband Bank when you open it (consumables and grey/junk items are skipped). Off by default.
 
 **Group Invite** — Auto-accepts group invites from friends, Battle.net friends and guildmates. Unknown inviters are left for you to handle.
 
@@ -18,7 +18,7 @@ A lightweight quality-of-life collection — twelve small utilities in one WoW a
 
 **Item Level Display** — Shows item level on equippable gear in your bags and bank.
 
-**Auto Quest** — Accepts quest offers and turns in completed quests. If there's more than one reward choice, the window stays open so you pick yourself.
+**Auto Quest** — Accepts quest offers and turns in completed quests. If there's more than one reward choice, or the turn-in costs gold or currency, the window stays open so you decide yourself.
 
 **Cinematic Skip** — Skips movies and in-game cutscenes you've already seen on any of your characters.
 
@@ -27,6 +27,8 @@ A lightweight quality-of-life collection — twelve small utilities in one WoW a
 **Cursor Ring** — A dusty purple ring with a soft silver glow that follows your mouse cursor, visible on light and dark backgrounds alike.
 
 **Auto Companion** — Summons a random favorite battle pet after loading screens if you don't have one out. Never in combat, while dead or stealthed, or in arenas/battlegrounds. Dismissing a pet manually sticks until the next loading screen.
+
+**Auto Marker** — Puts diamond on the tank and moon on the healer in 5-man dungeon groups. Off by default. The independent *Correct Marker on Player* toggle fixes your own mark if another addon or party member sets the wrong one on you — it works even with the main marker off, and never places a mark on its own, only corrects a wrong one.
 
 Hold **Shift** while interacting to bypass the quest, gossip and cinematic automation for that one interaction.
 
@@ -48,6 +50,8 @@ Type `/ur` to list every feature and its current state.
 | `/ur gossip` | Toggle auto gossip |
 | `/ur cursor` | Toggle the cursor ring |
 | `/ur companion` | Toggle auto companion summon |
+| `/ur marker` | Toggle auto marker (off by default) |
+| `/ur markerfix` | Toggle correcting your own mark (works independently of `marker`) |
 
 ## Installation
 
