@@ -15,7 +15,7 @@ local function SellJunk()
                 if info.isLocked or isQuestItem then
                     skipped = skipped + 1
                 else
-                    local vendorPrice = select(11, GetItemInfo(info.hyperlink)) or 0
+                    local vendorPrice = select(11, C_Item.GetItemInfo(info.hyperlink)) or 0
                     if vendorPrice > 0 then
                         local quantity = info.stackCount or 1
                         C_Container.UseContainerItem(bag, slot)

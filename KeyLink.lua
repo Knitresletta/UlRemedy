@@ -32,15 +32,15 @@ end
 
 frame:SetScript("OnEvent", function(self, event, message, sender)
     if not UlRemedy.enabled or not UlRemedy.enabled.keylink then return end
-    if message:lower():match("^!keys%s*$") then
+    if message:lower():match("^!keys?%s*$") then
         local now = GetTime()
         if now - lastReply < 5 then return end
         lastReply = now
         local link = FindKeystone()
         if link then
-            SendChatMessage(link, EVENT_TO_CHANNEL[event])
+            C_ChatInfo.SendChatMessage(link, EVENT_TO_CHANNEL[event])
         else
-            SendChatMessage("No keystone found.", EVENT_TO_CHANNEL[event])
+            C_ChatInfo.SendChatMessage("No keystone found.", EVENT_TO_CHANNEL[event])
         end
     end
 end)

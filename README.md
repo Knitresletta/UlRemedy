@@ -4,7 +4,7 @@ A lightweight quality-of-life collection — thirteen small utilities in one WoW
 
 ## Features
 
-**KeyLink** — Links your Mythic Keystone in chat when anyone (including you) types `!keys`, responding in the right channel.
+**KeyLink** — Links your Mythic Keystone in chat when anyone (including you) types `!key` or `!keys`, responding in the right channel.
 
 **Auto Repair** — Repairs your gear when you open a vendor. Guild bank funds first when they actually cover the cost, your own gold as fallback — and it only reports success once the repair is confirmed.
 

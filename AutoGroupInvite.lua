@@ -30,16 +30,11 @@ local function IsBattleNetFriend(name)
     return false
 end
 
+-- MemberExistsByName takes the full "Name-Realm" string, so pass it through
+-- unchanged. Same-realm inviters arrive without a realm suffix, which it also accepts.
 local function IsGuildmate(name)
-    local short = ShortName(name)
-    local count = GetNumGuildMembers()
-    for i = 1, count do
-        local memberName = GetGuildRosterInfo(i)
-        if memberName and ShortName(memberName) == short then
-            return true
-        end
-    end
-    return false
+    if not name or not IsInGuild() then return false end
+    return C_GuildInfo.MemberExistsByName(name) == true
 end
 
 local lastAccept = 0

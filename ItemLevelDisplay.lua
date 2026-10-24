@@ -4,7 +4,7 @@ local bankHooked = false
 
 local function ShouldShow(itemID)
     if not itemID then return false end
-    local _, _, _, _, _, classID = GetItemInfoInstant(itemID)
+    local _, _, _, _, _, classID = C_Item.GetItemInfoInstant(itemID)
     return classID == Enum.ItemClass.Weapon or classID == Enum.ItemClass.Armor
 end
 

@@ -23,7 +23,7 @@ end
 local function GetItemClassID(info)
     if info.classID then return info.classID end
     if not info.hyperlink then return nil end
-    local _, _, _, _, _, classID = GetItemInfoInstant(info.hyperlink)
+    local _, _, _, _, _, classID = C_Item.GetItemInfoInstant(info.hyperlink)
     return classID
 end
 

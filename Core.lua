@@ -34,8 +34,8 @@ local function InitDB()
 end
 
 function UlRemedy.MoneyText(amount)
-    if GetCoinTextureString then
-        return GetCoinTextureString(amount)
+    if C_CurrencyInfo and C_CurrencyInfo.GetCoinTextureString then
+        return C_CurrencyInfo.GetCoinTextureString(amount)
     end
     return tostring(amount) .. " copper"
 end
