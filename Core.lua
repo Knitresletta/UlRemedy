@@ -146,58 +146,83 @@ function UlRemedy.MoneyText(amount)
     return tostring(amount) .. " copper"
 end
 
+-- Every toggleable feature. Options.lua draws one checkbox per entry;
+-- /ur <key> toggles it from chat. desc is the one-line explanation shown
+-- next to the checkbox and in /ur help.
 local FEATURES = {
-    { key = "keylink",     label = "KeyLink" },
-    { key = "repair",      label = "Auto Repair" },
-    { key = "junk",        label = "Junk Seller" },
-    { key = "warbank",     label = "Warband Auto Deposit" },
-    { key = "groupinvite", label = "Group Invite" },
-    { key = "trainer",     label = "Enhanced Trainer" },
-    { key = "ilvl",        label = "Item Level Display" },
-    { key = "quest",       label = "Auto Quest" },
-    { key = "cinematic",   label = "Cinematic Skip" },
-    { key = "gossip",      label = "Auto Gossip" },
-    { key = "cursor",      label = "Cursor Ring" },
-    { key = "companion",   label = "Auto Companion" },
-    { key = "marker",      label = "Auto Marker" },
-    { key = "markerfix",   label = "Correct Marker on Player" },
+    { key = "repair",      group = "Vendor",    label = "Auto Repair",              desc = "Repairs your gear at vendors, guild funds first when they cover it." },
+    { key = "junk",        group = "Vendor",    label = "Junk Seller",              desc = "Sells all grey items when a vendor opens." },
+    { key = "warbank",     group = "Vendor",    label = "Warband Auto Deposit",     desc = "Deposits warbound items when the Warband Bank opens. Off by default." },
+    { key = "keylink",     group = "Group",     label = "KeyLink",                  desc = "Links your Mythic Keystone when anyone types !key or !keys." },
+    { key = "groupinvite", group = "Group",     label = "Group Invite",             desc = "Auto-accepts group invites from friends and guildmates." },
+    { key = "marker",      group = "Group",     label = "Auto Marker",              desc = "Diamond on the tank, moon on the healer in 5-man groups. Off by default." },
+    { key = "markerfix",   group = "Group",     label = "Correct Marker on Player", desc = "Fixes your own mark if someone sets the wrong one on you." },
+    { key = "quest",       group = "Quests",    label = "Auto Quest",               desc = "Accepts quests and hands them in. Reward choices are left to you." },
+    { key = "gossip",      group = "Quests",    label = "Auto Gossip",              desc = "Clicks through single-option NPC dialogs, never vendors or taxis." },
+    { key = "cinematic",   group = "Quests",    label = "Cinematic Skip",           desc = "Skips movies and cutscenes any of your characters has seen." },
+    { key = "trainer",     group = "Interface", label = "Enhanced Trainer",         desc = "Adds a Train All button to profession trainers." },
+    { key = "ilvl",        group = "Interface", label = "Item Level Display",       desc = "Shows item level on equippable gear in bags and bank." },
+    { key = "cursor",      group = "Interface", label = "Cursor Ring",              desc = "A purple ring that follows your mouse cursor." },
+    { key = "companion",   group = "Interface", label = "Auto Companion",           desc = "Summons a random favorite battle pet after loading screens." },
 }
+UlRemedy.FEATURE_GROUPS = { "Vendor", "Group", "Quests", "Interface" }
+UlRemedy.FEATURES = FEATURES
 
 local function PrintHelp()
-    print("|cffffcc00" .. UlRemedy.name .. "|r — commands:")
+    print("|cffffcc00" .. UlRemedy.name .. "|r: /ur opens the options window. Chat commands:")
     for _, f in ipairs(FEATURES) do
         local state = UlRemedy.enabled[f.key] and "|cff00ff00on|r" or "|cffff4444off|r"
-        print("  /ur " .. f.key .. " — " .. f.label .. " (" .. state .. ")")
+        print("  /ur " .. f.key .. ": " .. f.label .. " (" .. state .. "): " .. f.desc)
     end
-    print("  /ur errors — save this session's Lua errors, warnings and blocked actions to the saved variables, print the last five")
+    print("  /ur errors: save this session's Lua errors, warnings and blocked actions to the saved variables, print the last five")
+    print("  /ur help: this list")
 end
 
-local function Toggle(key, label)
-    UlRemedy.enabled[key] = not UlRemedy.enabled[key]
-    local state = UlRemedy.enabled[key] and "|cff00ff00enabled|r" or "|cffff4444disabled|r"
-    print(UlRemedy.name .. ": " .. label .. " " .. state .. ".")
+-- Modules that need a nudge when a feature changes state.
+local function NotifyModules()
     if UlRemedy.RefreshItemLevels then UlRemedy.RefreshItemLevels() end
     if UlRemedy.UpdateCursorRing then UlRemedy.UpdateCursorRing() end
+    if UlRemedy.RefreshOptions then UlRemedy.RefreshOptions() end
+end
+
+-- Shared by the chat command and the options window, so modules are
+-- notified the same way whichever route is used.
+function UlRemedy.SetFeature(key, enabled)
+    local feature
+    for _, f in ipairs(FEATURES) do
+        if f.key == key then feature = f end
+    end
+    if not feature then return end
+    UlRemedy.enabled[key] = enabled and true or false
+    local state = UlRemedy.enabled[key] and "|cff00ff00enabled|r" or "|cffff4444disabled|r"
+    print(UlRemedy.name .. ": " .. feature.label .. " " .. state .. ".")
+    NotifyModules()
 end
 
 SLASH_ULREMEDY1 = "/ur"
 SLASH_ULREMEDY2 = "/ulremedy"
 SlashCmdList["ULREMEDY"] = function(msg)
     local cmd = strtrim(msg):lower()
+    if cmd == "" then
+        if UlRemedy.ToggleOptions then UlRemedy.ToggleOptions() else PrintHelp() end
+        return
+    end
+    if cmd == "help" then
+        PrintHelp()
+        return
+    end
     if cmd == "errors" then
         local ok, err = pcall(UlRemedy.DumpErrors, true)
         if not ok then print(UlRemedy.name .. ": could not read the error list: " .. tostring(err)) end
         return
     end
-    local matched = false
     for _, f in ipairs(FEATURES) do
         if cmd == f.key then
-            Toggle(f.key, f.label)
-            matched = true
-            break
+            UlRemedy.SetFeature(f.key, not UlRemedy.enabled[f.key])
+            return
         end
     end
-    if not matched then PrintHelp() end
+    PrintHelp()
 end
 
 local frame = CreateFrame("Frame", "UlRemedyCoreFrame")

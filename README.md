@@ -34,10 +34,12 @@ Hold **Shift** while interacting to bypass the quest, gossip and cinematic autom
 
 ## Commands
 
-Type `/ur` to list every feature and its current state.
+Type `/ur` to open the options window, one checkbox per feature, grouped by Vendor, Group, Quests and Interface. The window can be dragged and closes with Escape. `/ur help` lists every feature and its current state in chat.
 
 | Command | Description |
 |---------|-------------|
+| `/ur` | Open or close the options window |
+| `/ur help` | List every feature and command in chat |
 | `/ur keylink` | Toggle keystone linking |
 | `/ur errors` | Save this session's Lua errors and warnings, and the blocked actions behind the alert icon in the AddOns list (which function, how often, where from), to the saved variables and print a summary. Also done automatically on reload and logout, so a silent failure can be read from `WTF/Account/<account>/SavedVariables/UlRemedy.lua` afterwards. |
 | `/ur repair` | Toggle auto repair |
