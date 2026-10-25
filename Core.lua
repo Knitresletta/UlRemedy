@@ -17,12 +17,15 @@ local DEFAULTS = {
     markerfix   = false,
     chatcopy    = true,
     playtime    = true,
+    macros      = true,
+    macrostopcast = false,
 }
 
 -- Persistent data tables (not toggles) that the prune below must leave alone.
 local DATA_KEYS = {
     seenCinematics = true,
     errors = true,
+    macroTargets = true,
 }
 
 local function InitDB()
@@ -168,6 +171,8 @@ local FEATURES = {
     { key = "companion",   group = "Interface", label = "Auto Companion",           desc = "Summons a random favorite battle pet after loading screens." },
     { key = "chatcopy",    group = "Interface", label = "Chat Copy",                desc = "A Copy button above the chat opens the log in a window the text can be copied from." },
     { key = "playtime",    group = "Interface", label = "Playtime",                 desc = "Remembers /played for every character. /ur played shows a bar per class, characters on hover." },
+    { key = "macros",      group = "Vendor",    label = "Auto Macro",               desc = "UR Heal chains your self-heals, Healthstone and best potion; UR Mana, Flask, Food, Drink and Bandage use the best in your bags." },
+    { key = "macrostopcast", group = "Vendor",  label = "UR Heal Stops Casting",    desc = "Puts /stopcasting first in UR Heal, so a caster's heal is not delayed by the spell in progress. Off by default." },
 }
 UlRemedy.FEATURE_GROUPS = { "Vendor", "Group", "Quests", "Interface" }
 UlRemedy.FEATURES = FEATURES
@@ -181,6 +186,7 @@ local function PrintHelp()
     print("  /ur chat: open the chat log in a window the text can be copied from")
     print("  /ur played: open the playtime window (a bar per class, characters on hover, total across them)")
     print("  /ur pt: print playtime diagnostics")
+    print("  /ur macrolist: print what the six UR macros use right now, and why")
     print("  /ur errors: save this session's Lua errors, warnings and blocked actions to the saved variables, print the last five")
     print("  /ur help: this list")
 end
@@ -191,6 +197,7 @@ local function NotifyModules()
     if UlRemedy.UpdateCursorRing then UlRemedy.UpdateCursorRing() end
     if UlRemedy.RefreshChatCopy then UlRemedy.RefreshChatCopy() end
     if UlRemedy.RefreshPlaytime then UlRemedy.RefreshPlaytime() end
+    if UlRemedy.RefreshAutoMacro then UlRemedy.RefreshAutoMacro() end
     if UlRemedy.RefreshOptions then UlRemedy.RefreshOptions() end
 end
 
@@ -230,6 +237,10 @@ SlashCmdList["ULREMEDY"] = function(msg)
     end
     if cmd == "pt" then
         if UlRemedy.PlaytimeDebug then UlRemedy.PlaytimeDebug() end
+        return
+    end
+    if cmd == "macrolist" then
+        if UlRemedy.MacroReport then UlRemedy.MacroReport() end
         return
     end
     if cmd == "errors" then
