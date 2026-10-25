@@ -1,6 +1,6 @@
 # UlRemedy
 
-A lightweight quality-of-life collection — twenty-one small utilities in one WoW addon, each individually toggleable with a slash command. Settings persist between sessions.
+A lightweight quality-of-life collection — twenty-two small utilities in one WoW addon, each individually toggleable with a slash command. Settings persist between sessions.
 
 ## Features
 
@@ -44,6 +44,8 @@ A lightweight quality-of-life collection — twenty-one small utilities in one W
 
 **Reminders** — A small panel at the top of the screen that says what you are missing, out of combat only. *Class Reminders*, anywhere: a Rogue without a lethal or non-lethal poison, an Enhancement Shaman without imbues on both weapons (other Shamans oil their weapon like everyone else, since imbue and oil share the slot), a Beast Mastery or Survival Hunter or a Warlock without a pet, and a Mage, Priest, Warrior, Druid or Shaman not wearing their own raid buff. *Instance Reminders*, in Mythic and Mythic+ dungeons and every raid: no flask, not Well Fed, no oil or stone on the weapon, and a warning when one has under ten minutes left; one chat line on entry. Only things your class can actually do are checked. Drag the panel where you want it. `/ur remind` prints what it sees.
 
+**Loot Helper** — For personal loot (items that go through a loot roll are ignored). When a boss drops gear to someone in your group that suits your class and spec and beats what you wear in that slot, a chat line names them and the item so you can ask for a trade. When you get a piece that is not an upgrade for you, it names the group members it would be an upgrade for, from their spec and the item levels they wear. Group members are inspected out of combat and in range, when the roster changes and after each boss. `/ur loot` shows what has been read.
+
 Hold **Shift** while interacting to bypass the quest, gossip and cinematic automation for that one interaction.
 
 ## Commands
@@ -80,6 +82,7 @@ Type `/ur` to open the options window, one checkbox per feature, grouped by Vend
 | `/ur inventorytooltip` | Toggle the inventory lines in item tooltips |
 | `/ur vendor` | Toggle the vendor window |
 | `/ur vendorbags` | Toggle the bag panel at vendors |
+| `/ur loothelper` | Toggle the personal loot helper |
 | `/ur reminders` | Toggle class reminders |
 | `/ur instancereminders` | Toggle flask, food and weapon reminders in Mythic dungeons and raids |
 

@@ -25,6 +25,7 @@ local DEFAULTS = {
     vendorbags  = true,
     reminders   = true,
     instancereminders = true,
+    loothelper  = true,
 }
 
 -- Persistent data tables (not toggles) that the prune below must leave alone.
@@ -175,6 +176,7 @@ local FEATURES = {
     { key = "groupinvite", group = "Group",     label = "Group Invite",             desc = "Auto-accepts group invites from friends and guildmates." },
     { key = "marker",      group = "Group",     label = "Auto Marker",              desc = "Diamond on the tank, moon on the healer in 5-man groups. Off by default." },
     { key = "markerfix",   group = "Group",     label = "Correct Marker on Player", desc = "Fixes your own mark if someone sets the wrong one on you." },
+    { key = "loothelper",  group = "Group",     label = "Loot Helper",              desc = "Personal loot: says when a group member's drop is an upgrade for you, and when yours is one for them." },
     { key = "quest",       group = "Quests",    label = "Auto Quest",               desc = "Accepts quests and hands them in. Reward choices are left to you." },
     { key = "gossip",      group = "Quests",    label = "Auto Gossip",              desc = "Clicks through single-option NPC dialogs, never vendors or taxis." },
     { key = "cinematic",   group = "Quests",    label = "Cinematic Skip",           desc = "Skips movies and cutscenes any of your characters has seen." },
@@ -203,6 +205,7 @@ local function PrintHelp()
     print("  /ur chat: open the chat log in a window the text can be copied from")
     print("  /ur played: open the playtime window (a bar per class, characters on hover, total across them)")
     print("  /ur pt: print playtime diagnostics")
+    print("  /ur loot: print what the loot helper knows about the group")
     print("  /ur remind: print what the reminders see right now")
     print("  /ur vendorreset: reset the vendor window to its default size")
     print("  /ur inv: open the inventory browser (all characters, gold and items)")
@@ -221,6 +224,7 @@ local function NotifyModules()
     if UlRemedy.RescanInventory then UlRemedy.RescanInventory() end
     if UlRemedy.RefreshVendor then UlRemedy.RefreshVendor() end
     if UlRemedy.RefreshReminders then UlRemedy.RefreshReminders() end
+    if UlRemedy.RefreshLootHelper then UlRemedy.RefreshLootHelper() end
     if UlRemedy.RefreshOptions then UlRemedy.RefreshOptions() end
 end
 
@@ -260,6 +264,10 @@ SlashCmdList["ULREMEDY"] = function(msg)
     end
     if cmd == "pt" then
         if UlRemedy.PlaytimeDebug then UlRemedy.PlaytimeDebug() end
+        return
+    end
+    if cmd == "loot" then
+        if UlRemedy.LootHelperReport then UlRemedy.LootHelperReport() end
         return
     end
     if cmd == "remind" then
