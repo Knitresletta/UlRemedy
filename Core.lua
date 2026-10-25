@@ -21,6 +21,8 @@ local DEFAULTS = {
     macrostopcast = false,
     inventory   = true,
     inventorytooltip = true,
+    vendor      = true,
+    vendorbags  = true,
 }
 
 -- Persistent data tables (not toggles) that the prune below must leave alone.
@@ -146,6 +148,10 @@ function UlRemedy.DumpErrors(announce)
     end
 end
 
+function UlRemedy.ItemVendorPrice(itemLink)
+    return (select(11, C_Item.GetItemInfo(itemLink)))
+end
+
 function UlRemedy.MoneyText(amount)
     if C_CurrencyInfo and C_CurrencyInfo.GetCoinTextureString then
         return C_CurrencyInfo.GetCoinTextureString(amount)
@@ -160,6 +166,8 @@ local FEATURES = {
     { key = "repair",      group = "Vendor",    label = "Auto Repair",              desc = "Repairs your gear at vendors, guild funds first when they cover it." },
     { key = "junk",        group = "Vendor",    label = "Junk Seller",              desc = "Sells all grey items when a vendor opens." },
     { key = "warbank",     group = "Vendor",    label = "Warband Auto Deposit",     desc = "Deposits warbound items when the Warband Bank opens. Off by default." },
+    { key = "vendor",      group = "Vendor",    label = "Vendor Window",            desc = "Bigger merchant window: one scrollable grid, search, quality filter, sorting, resizable." },
+    { key = "vendorbags",  group = "Vendor",    label = "Vendor Bags",              desc = "Bag panel docked to the vendor; one click sells an item, green and better ask first." },
     { key = "keylink",     group = "Group",     label = "KeyLink",                  desc = "Links your Mythic Keystone when anyone types !key or !keys." },
     { key = "groupinvite", group = "Group",     label = "Group Invite",             desc = "Auto-accepts group invites from friends and guildmates." },
     { key = "marker",      group = "Group",     label = "Auto Marker",              desc = "Diamond on the tank, moon on the healer in 5-man groups. Off by default." },
@@ -190,6 +198,7 @@ local function PrintHelp()
     print("  /ur chat: open the chat log in a window the text can be copied from")
     print("  /ur played: open the playtime window (a bar per class, characters on hover, total across them)")
     print("  /ur pt: print playtime diagnostics")
+    print("  /ur vendorreset: reset the vendor window to its default size")
     print("  /ur inv: open the inventory browser (all characters, gold and items)")
     print("  /ur macrolist: print what the six UR macros use right now, and why")
     print("  /ur errors: save this session's Lua errors, warnings and blocked actions to the saved variables, print the last five")
@@ -204,6 +213,7 @@ local function NotifyModules()
     if UlRemedy.RefreshPlaytime then UlRemedy.RefreshPlaytime() end
     if UlRemedy.RefreshAutoMacro then UlRemedy.RefreshAutoMacro() end
     if UlRemedy.RescanInventory then UlRemedy.RescanInventory() end
+    if UlRemedy.RefreshVendor then UlRemedy.RefreshVendor() end
     if UlRemedy.RefreshOptions then UlRemedy.RefreshOptions() end
 end
 
@@ -243,6 +253,10 @@ SlashCmdList["ULREMEDY"] = function(msg)
     end
     if cmd == "pt" then
         if UlRemedy.PlaytimeDebug then UlRemedy.PlaytimeDebug() end
+        return
+    end
+    if cmd == "vendorreset" then
+        if UlRemedy.ResetVendorWindow then UlRemedy.ResetVendorWindow() end
         return
     end
     if cmd == "inv" or cmd == "bags" then

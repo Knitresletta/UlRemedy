@@ -1,6 +1,6 @@
 # UlRemedy
 
-A lightweight quality-of-life collection — seventeen small utilities in one WoW addon, each individually toggleable with a slash command. Settings persist between sessions.
+A lightweight quality-of-life collection — nineteen small utilities in one WoW addon, each individually toggleable with a slash command. Settings persist between sessions.
 
 ## Features
 
@@ -38,6 +38,10 @@ A lightweight quality-of-life collection — seventeen small utilities in one Wo
 
 **Inventory** — Remembers gold, bag contents and bank contents for every character you log in with, plus the Warband bank. Hovering an item shows which of your characters have it and whether it sits in their bags or bank, with a total. `/ur inv` opens a browser: pick a character for their items and gold, or *All characters* for every item once with the counts added up and the holders named; search by name. Bags and gold update live, the bank each time you open it. *Forget character* removes someone you no longer play. The tooltip lines have their own toggle, `/ur inventorytooltip`.
 
+**Vendor Window** — A bigger merchant window. Every item the vendor sells is shown in one scrollable grid instead of ten per page, with a search box, a quality filter (all, uncommon+, rare+, epic+), a usable-only checkbox and a sort order (vendor order, name, price, quality). Drag the grip in the bottom-right corner to resize; the size is remembered across characters. Buying works exactly as before (right-click buys, shift-click buys a stack, drag to the cursor), because the grid uses Blizzard's own item slots. The buyback tab uses the same grid. `/ur vendorreset` restores the default size.
+
+**Vendor Bags** — A bag panel docked to the right of the vendor showing everything in your bags. One click sells an item; green and better items ask first, locked items, quest items and items without a vendor value are never sold. Shift-click links an item in chat. A search box dims everything that does not match. While the panel is on, Blizzard's own bags stay closed at vendors; `/ur vendorbags` turns it off to get them back.
+
 Hold **Shift** while interacting to bypass the quest, gossip and cinematic automation for that one interaction.
 
 ## Commands
@@ -72,6 +76,8 @@ Type `/ur` to open the options window, one checkbox per feature, grouped by Vend
 | `/ur macrostopcast` | Toggle `/stopcasting` at the top of UR Heal |
 | `/ur inventory` | Toggle inventory tracking and the browser |
 | `/ur inventorytooltip` | Toggle the inventory lines in item tooltips |
+| `/ur vendor` | Toggle the vendor window |
+| `/ur vendorbags` | Toggle the bag panel at vendors |
 
 ## Installation
 
