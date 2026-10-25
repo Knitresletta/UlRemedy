@@ -16,6 +16,7 @@ local DEFAULTS = {
     marker      = false,
     markerfix   = false,
     chatcopy    = true,
+    playtime    = true,
 }
 
 -- Persistent data tables (not toggles) that the prune below must leave alone.
@@ -166,6 +167,7 @@ local FEATURES = {
     { key = "cursor",      group = "Interface", label = "Cursor Ring",              desc = "A purple ring that follows your mouse cursor." },
     { key = "companion",   group = "Interface", label = "Auto Companion",           desc = "Summons a random favorite battle pet after loading screens." },
     { key = "chatcopy",    group = "Interface", label = "Chat Copy",                desc = "A Copy button above the chat opens the log in a window the text can be copied from." },
+    { key = "playtime",    group = "Interface", label = "Playtime",                 desc = "Remembers /played for every character. /ur played shows a bar per class, characters on hover." },
 }
 UlRemedy.FEATURE_GROUPS = { "Vendor", "Group", "Quests", "Interface" }
 UlRemedy.FEATURES = FEATURES
@@ -177,6 +179,8 @@ local function PrintHelp()
         print("  /ur " .. f.key .. ": " .. f.label .. " (" .. state .. "): " .. f.desc)
     end
     print("  /ur chat: open the chat log in a window the text can be copied from")
+    print("  /ur played: open the playtime window (a bar per class, characters on hover, total across them)")
+    print("  /ur pt: print playtime diagnostics")
     print("  /ur errors: save this session's Lua errors, warnings and blocked actions to the saved variables, print the last five")
     print("  /ur help: this list")
 end
@@ -186,6 +190,7 @@ local function NotifyModules()
     if UlRemedy.RefreshItemLevels then UlRemedy.RefreshItemLevels() end
     if UlRemedy.UpdateCursorRing then UlRemedy.UpdateCursorRing() end
     if UlRemedy.RefreshChatCopy then UlRemedy.RefreshChatCopy() end
+    if UlRemedy.RefreshPlaytime then UlRemedy.RefreshPlaytime() end
     if UlRemedy.RefreshOptions then UlRemedy.RefreshOptions() end
 end
 
@@ -217,6 +222,14 @@ SlashCmdList["ULREMEDY"] = function(msg)
     end
     if cmd == "chat" then
         if UlRemedy.ToggleChatCopy then UlRemedy.ToggleChatCopy() end
+        return
+    end
+    if cmd == "played" then
+        if UlRemedy.TogglePlaytimeWindow then UlRemedy.TogglePlaytimeWindow() end
+        return
+    end
+    if cmd == "pt" then
+        if UlRemedy.PlaytimeDebug then UlRemedy.PlaytimeDebug() end
         return
     end
     if cmd == "errors" then
