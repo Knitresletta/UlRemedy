@@ -1,6 +1,6 @@
 # UlRemedy
 
-A lightweight quality-of-life collection — thirteen small utilities in one WoW addon, each individually toggleable with a slash command. Settings persist between sessions.
+A lightweight quality-of-life collection — fourteen small utilities in one WoW addon, each individually toggleable with a slash command. Settings persist between sessions.
 
 ## Features
 
@@ -30,6 +30,8 @@ A lightweight quality-of-life collection — thirteen small utilities in one WoW
 
 **Auto Marker** — Puts diamond on the tank and moon on the healer in 5-man dungeon groups. Off by default. The independent *Correct Marker on Player* toggle fixes your own mark if another addon or party member sets the wrong one on you — it works even with the main marker off, and never places a mark on its own, only corrects a wrong one.
 
+**Chat Copy** — A small *Copy* button above the chat frame opens the chat log in a window where the text is selected and ready for Ctrl+C. Colour codes and link wrappers are stripped, so what you paste is plain text. `/ur chat` opens it too.
+
 Hold **Shift** while interacting to bypass the quest, gossip and cinematic automation for that one interaction.
 
 ## Commands
@@ -40,6 +42,7 @@ Type `/ur` to open the options window, one checkbox per feature, grouped by Vend
 |---------|-------------|
 | `/ur` | Open or close the options window |
 | `/ur help` | List every feature and command in chat |
+| `/ur chat` | Open the chat log copy window |
 | `/ur keylink` | Toggle keystone linking |
 | `/ur errors` | Save this session's Lua errors and warnings, and the blocked actions behind the alert icon in the AddOns list (which function, how often, where from), to the saved variables and print a summary. Also done automatically on reload and logout, so a silent failure can be read from `WTF/Account/<account>/SavedVariables/UlRemedy.lua` afterwards. |
 | `/ur repair` | Toggle auto repair |
@@ -55,6 +58,7 @@ Type `/ur` to open the options window, one checkbox per feature, grouped by Vend
 | `/ur companion` | Toggle auto companion summon |
 | `/ur marker` | Toggle auto marker (off by default) |
 | `/ur markerfix` | Toggle correcting your own mark (works independently of `marker`) |
+| `/ur chatcopy` | Toggle the Copy button by the chat |
 
 ## Installation
 

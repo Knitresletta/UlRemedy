@@ -1,9 +1,8 @@
 -- Options: a window with one switch per feature, opened with /ur.
 --
--- Drawn flat and dark in the style of the game's Settings panel rather
--- than from the gold BasicFrameTemplate: a BackdropTemplate frame with a
--- one-pixel border, each feature group as a card, and a pill-shaped
--- toggle switch per feature in the same dusty purple as the cursor ring.
+-- Drawn with the shared style in Style.lua (UlRemedy.UI): each feature
+-- group as a card, and a pill-shaped toggle switch per feature in the
+-- accent purple.
 -- The list of features comes from Core (UlRemedy.FEATURES), so a new
 -- module only needs a line there. Clicking a row goes through
 -- UlRemedy.SetFeature, the same path as the chat command, so modules get
@@ -16,56 +15,22 @@
 -- it. When both columns fill up, the next step is scrolling or collapsible
 -- groups, not a taller window.
 
-local PAD = 16                      -- window edge to content
-local GAP = 12                      -- between columns and between cards
+local UI = UlRemedy.UI
+local PAD, GAP = UI.PAD, 12           -- GAP: between columns and between cards
 local COLUMN_W = 380
 local WIDTH = PAD + COLUMN_W + GAP + COLUMN_W + PAD
-local TITLE_H = 44
 local BOTTOM_H = 70                 -- button row and hint
 local CARD_PAD = 10
 local HEADER_H = 22
 local ROW_H = 46                    -- name plus up to two lines of description
 local SWITCH_W, SWITCH_H = 38, 20
 
-local WHITE = "Interface/Buttons/WHITE8x8"
-local CIRCLE = "Interface/CharacterFrame/TempPortraitAlphaMask"
-
-local ACCENT = { 0.55, 0.40, 0.70 }          -- same dusty purple as the cursor ring
-local ACCENT_TEXT = { 0.76, 0.63, 0.90 }
-local BG = { 0.07, 0.07, 0.09, 0.97 }
-local TITLE_BG = { 0.10, 0.10, 0.13, 1 }
-local BORDER = { 0.24, 0.24, 0.30, 1 }
-local CARD = { 0.11, 0.11, 0.14, 1 }
-local CARD_BORDER = { 0.18, 0.18, 0.23, 1 }
-local TEXT = { 0.92, 0.92, 0.95 }
-local MUTED = { 0.58, 0.58, 0.64 }
 local TRACK_OFF = { 0.28, 0.28, 0.34 }
 local KNOB_OFF = { 0.72, 0.72, 0.76 }
+local Unpack, Texture = UI.Unpack, UI.Texture
 
 local window
 local rows = {}
-
-local function Unpack(c) return c[1], c[2], c[3], c[4] or 1 end
-
-local function Backdrop(f, color, border)
-    f:SetBackdrop({ bgFile = WHITE, edgeFile = WHITE, edgeSize = 1 })
-    f:SetBackdropColor(Unpack(color))
-    f:SetBackdropBorderColor(Unpack(border))
-end
-
--- A flat texture; with round=true a circle (the square masked by a disc).
-local function Texture(parent, w, h, round, layer)
-    local t = parent:CreateTexture(nil, layer or "ARTWORK")
-    t:SetTexture(WHITE)
-    t:SetSize(w, h)
-    if round then
-        local m = parent:CreateMaskTexture()
-        m:SetTexture(CIRCLE, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
-        m:SetAllPoints(t)
-        t:AddMaskTexture(m)
-    end
-    return t
-end
 
 -- A pill-shaped on/off switch: a bar with two round ends and a knob that
 -- sits left when off and right when on.
@@ -82,7 +47,7 @@ local function CreateSwitch(parent)
     sw.track = { mid, left, right }
     sw.knob = knob
     function sw:SetOn(on)
-        local track = on and ACCENT or TRACK_OFF
+        local track = on and UI.ACCENT or TRACK_OFF
         for _, t in ipairs(self.track) do t:SetVertexColor(Unpack(track)) end
         self.knob:ClearAllPoints()
         if on then
@@ -106,7 +71,7 @@ local function CreateRow(card, y, feature)
     row.key = feature.key
 
     local hover = row:CreateTexture(nil, "BACKGROUND")
-    hover:SetTexture(WHITE)
+    hover:SetTexture(UI.WHITE)
     hover:SetAllPoints()
     hover:SetVertexColor(1, 1, 1, 0.04)
     hover:Hide()
@@ -121,7 +86,7 @@ local function CreateRow(card, y, feature)
     name:SetPoint("TOPLEFT", row, "TOPLEFT", 6, -4)
     name:SetPoint("RIGHT", switch, "LEFT", -10, 0)
     name:SetJustifyH("LEFT")
-    name:SetTextColor(Unpack(TEXT))
+    name:SetTextColor(Unpack(UI.TEXT))
     name:SetText(feature.label)
 
     local desc = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
@@ -130,7 +95,7 @@ local function CreateRow(card, y, feature)
     desc:SetJustifyH("LEFT")
     desc:SetWordWrap(true)
     desc:SetMaxLines(2)
-    desc:SetTextColor(Unpack(MUTED))
+    desc:SetTextColor(Unpack(UI.MUTED))
     desc:SetText(feature.desc)
 
     row:SetScript("OnClick", function(self)
@@ -149,18 +114,18 @@ local function CreateCard(parent, x, y, g)
     local card = CreateFrame("Frame", nil, parent, "BackdropTemplate")
     card:SetPoint("TOPLEFT", parent, "TOPLEFT", x, y)
     card:SetSize(COLUMN_W, CardHeight(g))
-    Backdrop(card, CARD, CARD_BORDER)
+    UI.Backdrop(card, UI.CARD, UI.CARD_BORDER)
 
     local header = card:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     header:SetPoint("TOPLEFT", card, "TOPLEFT", CARD_PAD + 6, -CARD_PAD)
     header:SetHeight(HEADER_H)
     header:SetJustifyV("MIDDLE")
-    header:SetTextColor(Unpack(ACCENT_TEXT))
+    header:SetTextColor(Unpack(UI.ACCENT_TEXT))
     header:SetText(g.name)
 
     local line = card:CreateTexture(nil, "ARTWORK")
-    line:SetTexture(WHITE)
-    line:SetVertexColor(ACCENT[1], ACCENT[2], ACCENT[3], 0.35)
+    line:SetTexture(UI.WHITE)
+    line:SetVertexColor(UI.ACCENT[1], UI.ACCENT[2], UI.ACCENT[3], 0.35)
     line:SetHeight(1)
     line:SetPoint("TOPLEFT", card, "TOPLEFT", CARD_PAD, -(CARD_PAD + HEADER_H))
     line:SetPoint("RIGHT", card, "RIGHT", -CARD_PAD, 0)
@@ -171,21 +136,6 @@ local function CreateCard(parent, x, y, g)
         rowY = rowY - ROW_H
     end
     return card
-end
-
--- A flat text button in the same style as the cards.
-local function CreateFlatButton(parent, text, w, onClick)
-    local b = CreateFrame("Button", nil, parent, "BackdropTemplate")
-    b:SetSize(w, 26)
-    Backdrop(b, CARD, BORDER)
-    local label = b:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    label:SetPoint("CENTER")
-    label:SetTextColor(Unpack(TEXT))
-    label:SetText(text)
-    b:SetScript("OnEnter", function(self) self:SetBackdropColor(0.16, 0.16, 0.20, 1) end)
-    b:SetScript("OnLeave", function(self) self:SetBackdropColor(Unpack(CARD)) end)
-    b:SetScript("OnClick", onClick)
-    return b
 end
 
 -- Features grouped in the order Core lists the groups; anything with an
@@ -250,72 +200,15 @@ local function SplitColumns(groups)
     return left, right, bestH
 end
 
--- An X drawn from two rotated bars, so no glyph or atlas is needed.
-local function CreateCloseButton(parent)
-    local b = CreateFrame("Button", nil, parent)
-    b:SetSize(28, 28)
-    local bars = {}
-    for i, angle in ipairs({ 45, -45 }) do
-        local t = b:CreateTexture(nil, "ARTWORK")
-        t:SetTexture(WHITE)
-        t:SetSize(14, 2)
-        t:SetPoint("CENTER")
-        t:SetRotation(math.rad(angle))
-        t:SetVertexColor(Unpack(MUTED))
-        bars[i] = t
-    end
-    b:SetScript("OnEnter", function() for _, t in ipairs(bars) do t:SetVertexColor(Unpack(TEXT)) end end)
-    b:SetScript("OnLeave", function() for _, t in ipairs(bars) do t:SetVertexColor(Unpack(MUTED)) end end)
-    b:SetScript("OnClick", function() parent:Hide() end)
-    return b
-end
-
 local function CreateWindow()
     local groups = GroupedFeatures()
     local left, right, columnH = SplitColumns(groups)
-    local height = TITLE_H + PAD + columnH + BOTTOM_H
+    local height = UI.TITLE_H + PAD + columnH + BOTTOM_H
 
-    local f = CreateFrame("Frame", "UlRemedyOptionsFrame", UIParent, "BackdropTemplate")
-    f:SetSize(WIDTH, height)
-    f:SetPoint("CENTER")
-    Backdrop(f, BG, BORDER)
-    f:SetMovable(true)
-    f:EnableMouse(true)
-    f:RegisterForDrag("LeftButton")
-    f:SetScript("OnDragStart", f.StartMoving)
-    f:SetScript("OnDragStop", f.StopMovingOrSizing)
-    f:SetClampedToScreen(true)
-    f:SetFrameStrata("HIGH")
-    f:SetToplevel(true)
-    tinsert(UISpecialFrames, "UlRemedyOptionsFrame")
-
-    -- Title bar: a lighter band with the name, the version and a close X.
-    local bar = f:CreateTexture(nil, "BACKGROUND", nil, 1)
-    bar:SetTexture(WHITE)
-    bar:SetVertexColor(Unpack(TITLE_BG))
-    bar:SetPoint("TOPLEFT", f, "TOPLEFT", 1, -1)
-    bar:SetPoint("TOPRIGHT", f, "TOPRIGHT", -1, -1)
-    bar:SetHeight(TITLE_H - 1)
-    local barLine = f:CreateTexture(nil, "BACKGROUND", nil, 2)
-    barLine:SetTexture(WHITE)
-    barLine:SetVertexColor(Unpack(BORDER))
-    barLine:SetPoint("TOPLEFT", bar, "BOTTOMLEFT")
-    barLine:SetPoint("TOPRIGHT", bar, "BOTTOMRIGHT")
-    barLine:SetHeight(1)
-
-    local title = f:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-    title:SetPoint("LEFT", bar, "LEFT", PAD, 0)
-    title:SetTextColor(Unpack(TEXT))
-    title:SetText(UlRemedy.name)
-    local version = f:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    version:SetPoint("LEFT", title, "RIGHT", 8, -1)
-    version:SetTextColor(Unpack(MUTED))
-    version:SetText(UlRemedy.Version())
-    local close = CreateCloseButton(f)
-    close:SetPoint("RIGHT", bar, "RIGHT", -8, 0)
+    local f = UI.Window("UlRemedyOptionsFrame", WIDTH, height, UlRemedy.name, UlRemedy.Version())
 
     local function FillColumn(list, x)
-        local y = -(TITLE_H + PAD)
+        local y = -(UI.TITLE_H + PAD)
         for _, g in ipairs(list) do
             CreateCard(f, x, y, g)
             y = y - CardHeight(g) - GAP
@@ -325,21 +218,17 @@ local function CreateWindow()
     FillColumn(right, PAD + COLUMN_W + GAP)
 
     -- The one action that is not an on/off switch.
-    local errors = CreateFlatButton(f, "Save Lua errors", 160, function()
+    local errors = UI.Button(f, "Save Lua errors", 160, 26, function()
         local ok, err = pcall(UlRemedy.DumpErrors, true)
         if not ok then print(UlRemedy.name .. ": could not read the error list: " .. tostring(err)) end
     end)
     errors:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", PAD, 32)
 
-    local hint = f:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    local hint = UI.Text(f, "GameFontHighlightSmall", UI.MUTED)
     hint:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", PAD, 12)
-    hint:SetTextColor(Unpack(MUTED))
     hint:SetText("Chat works too: /ur <feature> toggles, /ur help lists every command.")
 
     f:SetScript("OnShow", function() if UlRemedy.RefreshOptions then UlRemedy.RefreshOptions() end end)
-    -- A new frame is visible from the start; hide it so the first toggle
-    -- shows it instead of hiding it.
-    f:Hide()
     return f
 end
 

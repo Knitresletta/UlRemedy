@@ -15,6 +15,7 @@ local DEFAULTS = {
     companion   = true,
     marker      = false,
     markerfix   = false,
+    chatcopy    = true,
 }
 
 -- Persistent data tables (not toggles) that the prune below must leave alone.
@@ -164,6 +165,7 @@ local FEATURES = {
     { key = "ilvl",        group = "Interface", label = "Item Level Display",       desc = "Shows item level on equippable gear in bags and bank." },
     { key = "cursor",      group = "Interface", label = "Cursor Ring",              desc = "A purple ring that follows your mouse cursor." },
     { key = "companion",   group = "Interface", label = "Auto Companion",           desc = "Summons a random favorite battle pet after loading screens." },
+    { key = "chatcopy",    group = "Interface", label = "Chat Copy",                desc = "A Copy button above the chat opens the log in a window the text can be copied from." },
 }
 UlRemedy.FEATURE_GROUPS = { "Vendor", "Group", "Quests", "Interface" }
 UlRemedy.FEATURES = FEATURES
@@ -174,6 +176,7 @@ local function PrintHelp()
         local state = UlRemedy.enabled[f.key] and "|cff00ff00on|r" or "|cffff4444off|r"
         print("  /ur " .. f.key .. ": " .. f.label .. " (" .. state .. "): " .. f.desc)
     end
+    print("  /ur chat: open the chat log in a window the text can be copied from")
     print("  /ur errors: save this session's Lua errors, warnings and blocked actions to the saved variables, print the last five")
     print("  /ur help: this list")
 end
@@ -182,6 +185,7 @@ end
 local function NotifyModules()
     if UlRemedy.RefreshItemLevels then UlRemedy.RefreshItemLevels() end
     if UlRemedy.UpdateCursorRing then UlRemedy.UpdateCursorRing() end
+    if UlRemedy.RefreshChatCopy then UlRemedy.RefreshChatCopy() end
     if UlRemedy.RefreshOptions then UlRemedy.RefreshOptions() end
 end
 
@@ -209,6 +213,10 @@ SlashCmdList["ULREMEDY"] = function(msg)
     end
     if cmd == "help" then
         PrintHelp()
+        return
+    end
+    if cmd == "chat" then
+        if UlRemedy.ToggleChatCopy then UlRemedy.ToggleChatCopy() end
         return
     end
     if cmd == "errors" then
