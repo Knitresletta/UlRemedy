@@ -1,6 +1,6 @@
 # UlRemedy
 
-A lightweight quality-of-life collection — sixteen small utilities in one WoW addon, each individually toggleable with a slash command. Settings persist between sessions.
+A lightweight quality-of-life collection — seventeen small utilities in one WoW addon, each individually toggleable with a slash command. Settings persist between sessions.
 
 ## Features
 
@@ -36,6 +36,8 @@ A lightweight quality-of-life collection — sixteen small utilities in one WoW 
 
 **Auto Macro** — Keeps six account macros (General tab, shared by all your characters and rewritten by whoever is logged in) up to date. `UR Heal` is a `/castsequence` chain: the self-heals your class and race know (shortest cooldown first), a Healthstone when you carry one (Soulburn first for a Warlock who has it), then the best healing potion, starting over when combat ends. `UR Mana`, `UR Flask`, `UR Food`, `UR Drink` and `UR Bandage` use the best of each in your bags; food prefers Well Fed food and falls back to whatever restores health, conjured first, and drink works the same for mana. Drag them to your bars once; they are edited in place whenever the bags, talents or spec change, out of combat. The *UR Heal Stops Casting* toggle adds `/stopcasting` for casters. "Best" comes from a ranked list by name (Midnight first, older expansions as fallbacks; best crafting rank wins, Hearty food beats plain, equal flasks go by stack size), with a guess from the item's tooltip for anything unlisted. Feasts are left out. `/ur macrolist` shows what each macro uses and why. The list and the tooltip words are English.
 
+**Inventory** — Remembers gold, bag contents and bank contents for every character you log in with, plus the Warband bank. Hovering an item shows which of your characters have it and whether it sits in their bags or bank, with a total. `/ur inv` opens a browser: pick a character for their items and gold, or *All characters* for every item once with the counts added up and the holders named; search by name. Bags and gold update live, the bank each time you open it. *Forget character* removes someone you no longer play. The tooltip lines have their own toggle, `/ur inventorytooltip`.
+
 Hold **Shift** while interacting to bypass the quest, gossip and cinematic automation for that one interaction.
 
 ## Commands
@@ -68,6 +70,8 @@ Type `/ur` to open the options window, one checkbox per feature, grouped by Vend
 | `/ur playtime` | Toggle playtime tracking |
 | `/ur macros` | Toggle the auto macros |
 | `/ur macrostopcast` | Toggle `/stopcasting` at the top of UR Heal |
+| `/ur inventory` | Toggle inventory tracking and the browser |
+| `/ur inventorytooltip` | Toggle the inventory lines in item tooltips |
 
 ## Installation
 

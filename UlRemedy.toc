@@ -1,10 +1,10 @@
 ## Interface: 120105
 ## Title: UlRemedy
-## Notes: Utility collection — keystone linking, auto repair, junk selling, warband deposit, group invite, enhanced trainer, item level display, quest automation, cinematic skip, auto gossip, cursor ring, auto companion, auto marker, chat copy, playtime, auto macro.
+## Notes: Utility collection — keystone linking, auto repair, junk selling, warband deposit, group invite, enhanced trainer, item level display, quest automation, cinematic skip, auto gossip, cursor ring, auto companion, auto marker, chat copy, playtime, auto macro, inventory.
 ## Author: knitresletta
-## Version: 1.6.0
+## Version: 1.7.0
 ## Category: Knitresletta
-## SavedVariables: UlRemedyDB, UlRemedyPlayedDB
+## SavedVariables: UlRemedyDB, UlRemedyPlayedDB, UlRemedyInventoryDB
 
 Core.lua
 Style.lua
@@ -25,3 +25,4 @@ AutoMarker.lua
 ChatCopy.lua
 Playtime.lua
 AutoMacro.lua
+Inventory.lua

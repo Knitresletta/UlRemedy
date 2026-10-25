@@ -19,6 +19,8 @@ local DEFAULTS = {
     playtime    = true,
     macros      = true,
     macrostopcast = false,
+    inventory   = true,
+    inventorytooltip = true,
 }
 
 -- Persistent data tables (not toggles) that the prune below must leave alone.
@@ -173,8 +175,10 @@ local FEATURES = {
     { key = "playtime",    group = "Interface", label = "Playtime",                 desc = "Remembers /played for every character. /ur played shows a bar per class, characters on hover." },
     { key = "macros",      group = "Vendor",    label = "Auto Macro",               desc = "UR Heal chains your self-heals, Healthstone and best potion; UR Mana, Flask, Food, Drink and Bandage use the best in your bags." },
     { key = "macrostopcast", group = "Vendor",  label = "UR Heal Stops Casting",    desc = "Puts /stopcasting first in UR Heal, so a caster's heal is not delayed by the spell in progress. Off by default." },
+    { key = "inventory",   group = "Items",     label = "Inventory",                desc = "Remembers gold, bags and bank for all your characters. /ur inv opens the browser." },
+    { key = "inventorytooltip", group = "Items", label = "Inventory in Tooltips",  desc = "Item tooltips list which characters have the item, where, and the total." },
 }
-UlRemedy.FEATURE_GROUPS = { "Vendor", "Group", "Quests", "Interface" }
+UlRemedy.FEATURE_GROUPS = { "Vendor", "Group", "Quests", "Interface", "Items" }
 UlRemedy.FEATURES = FEATURES
 
 local function PrintHelp()
@@ -186,6 +190,7 @@ local function PrintHelp()
     print("  /ur chat: open the chat log in a window the text can be copied from")
     print("  /ur played: open the playtime window (a bar per class, characters on hover, total across them)")
     print("  /ur pt: print playtime diagnostics")
+    print("  /ur inv: open the inventory browser (all characters, gold and items)")
     print("  /ur macrolist: print what the six UR macros use right now, and why")
     print("  /ur errors: save this session's Lua errors, warnings and blocked actions to the saved variables, print the last five")
     print("  /ur help: this list")
@@ -198,6 +203,7 @@ local function NotifyModules()
     if UlRemedy.RefreshChatCopy then UlRemedy.RefreshChatCopy() end
     if UlRemedy.RefreshPlaytime then UlRemedy.RefreshPlaytime() end
     if UlRemedy.RefreshAutoMacro then UlRemedy.RefreshAutoMacro() end
+    if UlRemedy.RescanInventory then UlRemedy.RescanInventory() end
     if UlRemedy.RefreshOptions then UlRemedy.RefreshOptions() end
 end
 
@@ -237,6 +243,10 @@ SlashCmdList["ULREMEDY"] = function(msg)
     end
     if cmd == "pt" then
         if UlRemedy.PlaytimeDebug then UlRemedy.PlaytimeDebug() end
+        return
+    end
+    if cmd == "inv" or cmd == "bags" then
+        if UlRemedy.ToggleInventoryWindow then UlRemedy.ToggleInventoryWindow() end
         return
     end
     if cmd == "macrolist" then
