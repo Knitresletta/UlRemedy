@@ -26,6 +26,7 @@ local DEFAULTS = {
     reminders   = true,
     instancereminders = true,
     loothelper  = true,
+    minimap     = true,
 }
 
 -- Persistent data tables (not toggles) that the prune below must leave alone.
@@ -34,6 +35,8 @@ local DATA_KEYS = {
     errors = true,
     macroTargets = true,
     reminderPos = true,
+    minimapAngle = true,
+    lootPos = true,
 }
 
 local function InitDB()
@@ -186,6 +189,7 @@ local FEATURES = {
     { key = "companion",   group = "Interface", label = "Auto Companion",           desc = "Summons a random favorite battle pet after loading screens." },
     { key = "chatcopy",    group = "Interface", label = "Chat Copy",                desc = "A Copy button above the chat opens the log in a window the text can be copied from." },
     { key = "playtime",    group = "Interface", label = "Playtime",                 desc = "Remembers /played for every character. /ur played shows a bar per class, characters on hover." },
+    { key = "minimap",     group = "Interface", label = "Minimap Button",           desc = "Left-click lists the inventory, playtime and chat log windows, right-click opens the options. Drag to move." },
     { key = "macros",      group = "Vendor",    label = "Auto Macro",               desc = "UR Heal chains your self-heals, Healthstone and best potion; UR Mana, Flask, Food, Drink and Bandage use the best in your bags." },
     { key = "macrostopcast", group = "Vendor",  label = "UR Heal Stops Casting",    desc = "Puts /stopcasting first in UR Heal, so a caster's heal is not delayed by the spell in progress. Off by default." },
     { key = "inventory",   group = "Items",     label = "Inventory",                desc = "Remembers gold, bags and bank for all your characters. /ur inv opens the browser." },
@@ -205,7 +209,9 @@ local function PrintHelp()
     print("  /ur chat: open the chat log in a window the text can be copied from")
     print("  /ur played: open the playtime window (a bar per class, characters on hover, total across them)")
     print("  /ur pt: print playtime diagnostics")
+    print("  /ur hub: print minimap button diagnostics and the rows in its menu")
     print("  /ur loot: print what the loot helper knows about the group")
+    print("  /ur loottest: show a sample loot card so it can be placed")
     print("  /ur remind: print what the reminders see right now")
     print("  /ur vendorreset: reset the vendor window to its default size")
     print("  /ur inv: open the inventory browser (all characters, gold and items)")
@@ -225,6 +231,7 @@ local function NotifyModules()
     if UlRemedy.RefreshVendor then UlRemedy.RefreshVendor() end
     if UlRemedy.RefreshReminders then UlRemedy.RefreshReminders() end
     if UlRemedy.RefreshLootHelper then UlRemedy.RefreshLootHelper() end
+    if UlRemedy.RefreshMinimapButton then UlRemedy.RefreshMinimapButton() end
     if UlRemedy.RefreshOptions then UlRemedy.RefreshOptions() end
 end
 
@@ -264,6 +271,14 @@ SlashCmdList["ULREMEDY"] = function(msg)
     end
     if cmd == "pt" then
         if UlRemedy.PlaytimeDebug then UlRemedy.PlaytimeDebug() end
+        return
+    end
+    if cmd == "hub" then
+        if UlRemedy.HubDebug then UlRemedy.HubDebug() end
+        return
+    end
+    if cmd == "loottest" then
+        if UlRemedy.LootHelperTest then UlRemedy.LootHelperTest() end
         return
     end
     if cmd == "loot" then

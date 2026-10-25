@@ -130,6 +130,13 @@ local function InstanceKind()
     return nil
 end
 
+-- A pet is dismissed while flying, on a taxi or in a vehicle, so a
+-- missing pet means nothing then. The dismount triggers a new check.
+local function Travelling()
+    return (IsMounted and IsMounted()) or (UnitOnTaxi and UnitOnTaxi("player"))
+        or (UnitInVehicle and UnitInVehicle("player")) or false
+end
+
 local function ClassReminders(out)
     local _, class = UnitClass("player")
     local specIndex = GetSpecialization and GetSpecialization()
@@ -167,11 +174,11 @@ local function ClassReminders(out)
             out[#out + 1] = { icon = SpellIcon(SHIELD_IMBUES[1]), text = "No imbue on your shield" }
         end
     elseif class == "HUNTER" then
-        if specID and PET_SPECS[specID] and not UnitExists("pet") then
+        if specID and PET_SPECS[specID] and not UnitExists("pet") and not Travelling() then
             out[#out + 1] = { icon = 132160, text = "No pet out" }
         end
     elseif class == "WARLOCK" then
-        if not UnitExists("pet") and not HasAura(GRIMOIRE_OF_SACRIFICE) then
+        if not UnitExists("pet") and not HasAura(GRIMOIRE_OF_SACRIFICE) and not Travelling() then
             out[#out + 1] = { icon = 136082, text = "No demon out" }
         end
     end
@@ -373,6 +380,9 @@ frame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 frame:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
 frame:RegisterEvent("PLAYER_ALIVE")
 frame:RegisterEvent("PLAYER_UNGHOST")
+frame:RegisterEvent("PLAYER_MOUNT_DISPLAY_CHANGED")
+frame:RegisterEvent("UNIT_ENTERED_VEHICLE")
+frame:RegisterEvent("UNIT_EXITED_VEHICLE")
 frame:RegisterUnitEvent("UNIT_AURA", "player")
 frame:RegisterUnitEvent("UNIT_PET", "player")
 frame:RegisterUnitEvent("UNIT_INVENTORY_CHANGED", "player")

@@ -4,8 +4,9 @@
 -- Personal loot only. When a boss drops loot, ENCOUNTER_LOOT_RECEIVED
 -- fires once per item for everyone in the group, with the item, the
 -- receiver and their class. Items that went through a loot roll are
--- ignored (their links are remembered from START_LOOT_ROLL), and nothing
--- is done at all unless the loot method is personal loot.
+-- ignored: their item IDs are remembered from START_LOOT_ROLL. (The
+-- loot method reported by GetLootMethod is not "personalloot" in a
+-- 12.1.5 dungeon, so it is not used as a gate; the roll memory is.)
 --
 -- Two questions per item. Is it an upgrade for me: it has to suit my
 -- class and spec (armor type, and C_Item.GetItemSpecInfo), and its item
@@ -17,9 +18,12 @@
 -- GUID for the run.
 --
 -- Whether another player's item is tradable only their own tooltip
--- knows, so the message says to ask. Output is chat lines with the item
--- link; nothing is whispered and nothing is traded. /ur loot prints what
--- the module knows about the group.
+-- knows, so the message says to ask. Output is a small card in the
+-- shared style with the item's icon, up to three stacked, each gone
+-- after half a minute or a click on its X; the cards can be dragged and
+-- the spot is saved in UlRemedyDB.lootPos. Nothing is whispered and
+-- nothing is traded. /ur loot prints what the module knows about the
+-- group.
 
 local ROLL_MEMORY = 10 * 60       -- seconds a rolled item stays on the ignore list
 local INSPECT_GAP = 2             -- seconds between inspect requests
@@ -48,7 +52,7 @@ local SLOT_NAMES = {
     [14] = "trinket", [15] = "back", [16] = "main hand", [17] = "off hand",
 }
 
-local rolled = {}        -- itemLink -> time it went to a roll
+local rolled = {}        -- itemID -> time it went to a roll
 local inspected = {}     -- guid -> { name, class, spec, slots = { [slot] = ilvl }, at }
 local queue = {}         -- unit tokens waiting for an inspect
 local inspecting         -- { unit, guid, at } while a request is out
@@ -167,37 +171,214 @@ local function QueueInspects()
     C_Timer.After(INSPECT_GAP, NextInspect)
 end
 
+-- INSPECT_READY arrives before the client has every item cached, so
+-- links are missing or give the unscaled base level on the first read.
+-- Read three times over three seconds, keeping the best value per slot
+-- and asking for the item data in between, then let the inspect go.
+local READ_DELAYS = { 0, 1, 2.5 }
+
+local function ReadInspectSlots(unit, rec)
+    local read = 0
+    for slot = 1, 17 do
+        local okL, link = pcall(GetInventoryItemLink, unit, slot)
+        link = okL and Plain(link) or nil
+        if link then
+            local lvl = ItemLevel(link)
+            if lvl and lvl > (rec.slots[slot] or 0) then rec.slots[slot] = lvl end
+            if not lvl or lvl < 100 then
+                local id = C_Item.GetItemInfoInstant(link)
+                if id and C_Item.RequestLoadItemDataByID then C_Item.RequestLoadItemDataByID(id) end
+            end
+            read = read + 1
+        end
+    end
+    rec.linksSeen = math.max(rec.linksSeen or 0, read)
+end
+
 local function OnInspectReady(guid)
     if not inspecting or inspecting.guid ~= guid then return end
     local unit = inspecting.unit
-    inspecting = nil
     local rec = { name = UnitName(unit), class = select(2, UnitClass(unit)), slots = {}, at = GetTime() }
     local ok, spec = pcall(GetInspectSpecialization, unit)
     rec.spec = ok and tonumber(Plain(spec)) or nil
     if rec.spec == 0 then rec.spec = nil end
-    for slot = 1, 17 do
-        local okL, link = pcall(GetInventoryItemLink, unit, slot)
-        link = okL and Plain(link) or nil
-        rec.slots[slot] = link and ItemLevel(link) or 0
-    end
+    local okA, avg = pcall(C_PaperDollInfo and C_PaperDollInfo.GetInspectItemLevel or function() end, unit)
+    rec.average = okA and tonumber(Plain(avg)) or nil
+    for slot = 1, 17 do rec.slots[slot] = 0 end
     inspected[guid] = rec
-    if ClearInspectPlayer then pcall(ClearInspectPlayer) end
-    C_Timer.After(INSPECT_GAP, NextInspect)
+
+    for i, delay in ipairs(READ_DELAYS) do
+        C_Timer.After(delay, function()
+            if inspecting and inspecting.guid == guid and UnitGUID(unit) == guid then
+                pcall(ReadInspectSlots, unit, rec)
+            end
+            if i == #READ_DELAYS then
+                if inspecting and inspecting.guid == guid then inspecting = nil end
+                if ClearInspectPlayer then pcall(ClearInspectPlayer) end
+                C_Timer.After(INSPECT_GAP, NextInspect)
+            end
+        end)
+    end
+end
+
+------------------------------------------------------------------------
+-- Cards
+------------------------------------------------------------------------
+
+local CARD_W, CARD_PAD, CARD_LIFE, MAX_CARDS = 340, 10, 30, 3
+local cards = {}          -- shown cards, newest last
+local anchor              -- invisible frame the cards hang from
+
+local function GetAnchor()
+    if anchor then return anchor end
+    anchor = CreateFrame("Frame", "UlRemedyLootAnchor", UIParent)
+    anchor:SetSize(CARD_W, 1)
+    local pos = UlRemedyDB.lootPos
+    if pos and pos.point then
+        anchor:SetPoint(pos.point, UIParent, pos.relPoint or pos.point, pos.x or 0, pos.y or 0)
+    else
+        anchor:SetPoint("TOP", UIParent, "TOP", 0, -230)
+    end
+    return anchor
+end
+
+local function LayoutCards()
+    local prev
+    for _, card in ipairs(cards) do
+        card:ClearAllPoints()
+        if prev then
+            card:SetPoint("TOP", prev, "BOTTOM", 0, -6)
+        else
+            card:SetPoint("TOP", GetAnchor(), "TOP", 0, 0)
+        end
+        prev = card
+    end
+end
+
+local function DismissCard(card)
+    for i, c in ipairs(cards) do
+        if c == card then table.remove(cards, i) break end
+    end
+    card:Hide()
+    LayoutCards()
+end
+
+local pool = {}
+
+local function AcquireCard()
+    local card = table.remove(pool)
+    if card then return card end
+    local UI = UlRemedy.UI
+    card = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
+    card:SetWidth(CARD_W)
+    UI.Backdrop(card, UI.BG, UI.BORDER)
+    card:SetFrameStrata("HIGH")
+    card:EnableMouse(true)
+    card:SetMovable(true)
+    card:RegisterForDrag("LeftButton")
+    card:SetClampedToScreen(true)
+    -- Dragging any card moves the anchor, so the stack moves together.
+    card:SetScript("OnDragStart", function(self)
+        local a = GetAnchor()
+        a:SetMovable(true)
+        a:StartMoving()
+        self.movingAnchor = true
+    end)
+    card:SetScript("OnDragStop", function(self)
+        local a = GetAnchor()
+        a:StopMovingOrSizing()
+        local point, _, relPoint, x, y = a:GetPoint()
+        UlRemedyDB.lootPos = { point = point, relPoint = relPoint, x = x, y = y }
+        self.movingAnchor = nil
+    end)
+    card:SetHyperlinksEnabled(true)
+    card:SetScript("OnHyperlinkClick", function(self, link, text, mouseButton)
+        if HandleModifiedItemClick and IsModifiedClick("CHATLINK") then
+            HandleModifiedItemClick(text)
+        else
+            SetItemRef(link, text, mouseButton, self)
+        end
+    end)
+    card:SetScript("OnHyperlinkEnter", function(self, link)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:SetHyperlink(link)
+        GameTooltip:Show()
+    end)
+    card:SetScript("OnHyperlinkLeave", function() GameTooltip:Hide() end)
+
+    local accent = card:CreateTexture(nil, "ARTWORK")
+    accent:SetTexture(UI.WHITE)
+    accent:SetVertexColor(UI.ACCENT[1], UI.ACCENT[2], UI.ACCENT[3], 0.9)
+    accent:SetWidth(3)
+    accent:SetPoint("TOPLEFT", card, "TOPLEFT", 1, -1)
+    accent:SetPoint("BOTTOMLEFT", card, "BOTTOMLEFT", 1, 1)
+
+    card.icon = card:CreateTexture(nil, "ARTWORK")
+    card.icon:SetSize(36, 36)
+    card.icon:SetPoint("TOPLEFT", card, "TOPLEFT", CARD_PAD + 4, -CARD_PAD)
+    card.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+
+    card.close = UI.CloseButton(card, function() DismissCard(card) end)
+    card.close:SetSize(22, 22)
+    card.close:SetPoint("TOPRIGHT", card, "TOPRIGHT", -2, -2)
+
+    card.title = UI.Text(card, "GameFontNormal", UI.ACCENT_TEXT)
+    card.title:SetPoint("TOPLEFT", card.icon, "TOPRIGHT", 10, -1)
+    card.title:SetPoint("RIGHT", card.close, "LEFT", -4, 0)
+    card.title:SetJustifyH("LEFT")
+
+    card.body = UI.Text(card, "GameFontHighlightSmall", UI.TEXT)
+    card.body:SetPoint("TOPLEFT", card.title, "BOTTOMLEFT", 0, -3)
+    card.body:SetPoint("RIGHT", card, "RIGHT", -CARD_PAD, 0)
+    card.body:SetJustifyH("LEFT")
+    card.body:SetWordWrap(true)
+    card.body:SetSpacing(2)
+
+    -- Hovering pauses the timer, so a card is not lost while reading.
+    card:SetScript("OnUpdate", function(self, elapsed)
+        if self:IsMouseOver() then return end
+        self.left = (self.left or CARD_LIFE) - elapsed
+        if self.left <= 0 then DismissCard(self) end
+    end)
+    return card
+end
+
+local function ShowCard(icon, title, body)
+    while #cards >= MAX_CARDS do DismissCard(cards[1]) end
+    local card = AcquireCard()
+    card.icon:SetTexture(icon or 134400)
+    card.title:SetText(title)
+    card.body:SetText(body)
+    card.left = CARD_LIFE
+    local h = CARD_PAD + math.max(36, 16 + card.body:GetStringHeight() + 6) + CARD_PAD
+    card:SetHeight(h)
+    cards[#cards + 1] = card
+    card:Show()
+    LayoutCards()
+    if PlaySound and SOUNDKIT and SOUNDKIT.UI_GARRISON_TOAST then
+        pcall(PlaySound, SOUNDKIT.UI_GARRISON_TOAST)
+    end
+end
+
+local function ItemIcon(link)
+    local ok, _, _, _, _, icon = pcall(C_Item.GetItemInfoInstant, link)
+    return ok and icon or nil
 end
 
 ------------------------------------------------------------------------
 -- Judging a drop
 ------------------------------------------------------------------------
 
-local function PersonalLoot()
+local function LootMethod()
     local ok, method = pcall(GetLootMethod)
-    return ok and Plain(method) == "personalloot"
+    return ok and tostring(Plain(method)) or "?"
 end
 
 local function OnLoot(itemLink, receiverName, receiverClass)
-    if not Enabled() or not PersonalLoot() then return end
+    if not Enabled() then return end
     if not itemLink or not receiverName then return end
-    if rolled[itemLink] and (GetTime() - rolled[itemLink]) < ROLL_MEMORY then return end
+    local itemID = C_Item.GetItemInfoInstant(itemLink)
+    if itemID and rolled[itemID] and (GetTime() - rolled[itemID]) < ROLL_MEMORY then return end
     local slots, classID, subClassID = ItemSlots(itemLink)
     if not slots then return end
     local ilvl = ItemLevel(itemLink)
@@ -213,8 +394,9 @@ local function OnLoot(itemLink, receiverName, receiverClass)
         if not Suits(itemLink, me, MySpec(), classID, subClassID) then return end
         local worn, slot = WornLevel(MySlotLevels(), slots)
         if ilvl > worn then
-            print(string.format("%s: %s got %s (ilvl %d), an upgrade over your %s (ilvl %d). Ask whether it can be traded.",
-                UlRemedy.name, shortReceiver, itemLink, ilvl, SLOT_NAMES[slot] or "slot", worn))
+            ShowCard(ItemIcon(itemLink), shortReceiver .. " got an upgrade for you",
+                string.format("%s (ilvl %d) beats your %s (ilvl %d). Ask whether it can be traded.",
+                    itemLink, ilvl, SLOT_NAMES[slot] or "slot", worn))
         end
         return
     end
@@ -238,8 +420,9 @@ local function OnLoot(itemLink, receiverName, receiverClass)
         end
     end
     if #wants > 0 then
-        print(string.format("%s: your %s (ilvl %d) is not an upgrade for you; it would be for %s.",
-            UlRemedy.name, itemLink, ilvl, table.concat(wants, ", ")))
+        ShowCard(ItemIcon(itemLink), "Your drop would help someone",
+            string.format("%s (ilvl %d) is not an upgrade for you. It would be for %s.",
+                itemLink, ilvl, table.concat(wants, ", ")))
     end
 end
 
@@ -249,7 +432,7 @@ end
 
 function UlRemedy.LootHelperReport()
     print(UlRemedy.name .. ": loot helper " .. (Enabled() and "on" or "off")
-        .. ", loot method " .. (PersonalLoot() and "personal" or "not personal (ignored)")
+        .. ", loot method " .. LootMethod() .. " (not used as a gate)"
         .. ", inspect " .. (inspecting and ("waiting on " .. inspecting.unit) or "idle") .. ", queue " .. #queue .. ".")
     for _, unit in ipairs(GroupUnits()) do
         local guid = UnitGUID(unit)
@@ -259,13 +442,20 @@ function UlRemedy.LootHelperReport()
             for slot, lvl in pairs(rec.slots) do
                 if slot ~= 4 and lvl > 0 then n = n + 1; sum = sum + lvl end
             end
-            print(string.format("  %s: spec %s, %d slots read, average ilvl %d, %d min ago",
-                rec.name or unit, tostring(rec.spec or "?"), n, n > 0 and math.floor(sum / n + 0.5) or 0,
-                math.floor((GetTime() - rec.at) / 60)))
+            print(string.format("  %s: spec %s, %d links seen, %d levels read, average of those %d, client average %s, %d min ago",
+                rec.name or unit, tostring(rec.spec or "?"), rec.linksSeen or 0, n, n > 0 and math.floor(sum / n + 0.5) or 0,
+                rec.average and string.format("%.0f", rec.average) or "?", math.floor((GetTime() - rec.at) / 60)))
         else
             print("  " .. (UnitName(unit) or unit) .. ": not inspected yet")
         end
     end
+end
+
+-- /ur loottest: a sample card, to see where it lands and move it.
+function UlRemedy.LootHelperTest()
+    local link = GetInventoryItemLink("player", 16) or GetInventoryItemLink("player", 1) or "item"
+    ShowCard(ItemIcon(link), "Someone got an upgrade for you",
+        string.format("%s (ilvl 999) beats your main hand (ilvl 1). Ask whether it can be traded.", link))
 end
 
 function UlRemedy.RefreshLootHelper()
@@ -287,7 +477,8 @@ frame:SetScript("OnEvent", function(self, event, ...)
     elseif event == "START_LOOT_ROLL" then
         local rollID = ...
         local ok, link = pcall(GetLootRollItemLink, rollID)
-        if ok and Plain(link) then rolled[link] = GetTime() end
+        local itemID = ok and Plain(link) and C_Item.GetItemInfoInstant(link)
+        if itemID then rolled[itemID] = GetTime() end
     elseif event == "GROUP_ROSTER_UPDATE" or event == "PLAYER_ENTERING_WORLD" then
         if not IsInGroup() then wipe(inspected) end
         QueueInspects()
