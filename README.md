@@ -39,6 +39,7 @@ Type `/ur` to list every feature and its current state.
 | Command | Description |
 |---------|-------------|
 | `/ur keylink` | Toggle keystone linking |
+| `/ur errors` | Save this session's Lua errors and warnings, and the blocked actions behind the alert icon in the AddOns list (which function, how often, where from), to the saved variables and print a summary. Also done automatically on reload and logout, so a silent failure can be read from `WTF/Account/<account>/SavedVariables/UlRemedy.lua` afterwards. |
 | `/ur repair` | Toggle auto repair |
 | `/ur junk` | Toggle junk seller |
 | `/ur warbank` | Toggle warband auto deposit |
