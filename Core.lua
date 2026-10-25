@@ -23,6 +23,8 @@ local DEFAULTS = {
     inventorytooltip = true,
     vendor      = true,
     vendorbags  = true,
+    reminders   = true,
+    instancereminders = true,
 }
 
 -- Persistent data tables (not toggles) that the prune below must leave alone.
@@ -30,6 +32,7 @@ local DATA_KEYS = {
     seenCinematics = true,
     errors = true,
     macroTargets = true,
+    reminderPos = true,
 }
 
 local function InitDB()
@@ -185,8 +188,10 @@ local FEATURES = {
     { key = "macrostopcast", group = "Vendor",  label = "UR Heal Stops Casting",    desc = "Puts /stopcasting first in UR Heal, so a caster's heal is not delayed by the spell in progress. Off by default." },
     { key = "inventory",   group = "Items",     label = "Inventory",                desc = "Remembers gold, bags and bank for all your characters. /ur inv opens the browser." },
     { key = "inventorytooltip", group = "Items", label = "Inventory in Tooltips",  desc = "Item tooltips list which characters have the item, where, and the total." },
+    { key = "reminders",   group = "Reminders", label = "Class Reminders",          desc = "Poisons, weapon imbues, pet and your own raid buff: a panel says what is missing." },
+    { key = "instancereminders", group = "Reminders", label = "Instance Reminders", desc = "In Mythic dungeons and raids: flask, Well Fed and weapon oil, with a chat line on entry." },
 }
-UlRemedy.FEATURE_GROUPS = { "Vendor", "Group", "Quests", "Interface", "Items" }
+UlRemedy.FEATURE_GROUPS = { "Vendor", "Group", "Quests", "Interface", "Items", "Reminders" }
 UlRemedy.FEATURES = FEATURES
 
 local function PrintHelp()
@@ -198,6 +203,7 @@ local function PrintHelp()
     print("  /ur chat: open the chat log in a window the text can be copied from")
     print("  /ur played: open the playtime window (a bar per class, characters on hover, total across them)")
     print("  /ur pt: print playtime diagnostics")
+    print("  /ur remind: print what the reminders see right now")
     print("  /ur vendorreset: reset the vendor window to its default size")
     print("  /ur inv: open the inventory browser (all characters, gold and items)")
     print("  /ur macrolist: print what the six UR macros use right now, and why")
@@ -214,6 +220,7 @@ local function NotifyModules()
     if UlRemedy.RefreshAutoMacro then UlRemedy.RefreshAutoMacro() end
     if UlRemedy.RescanInventory then UlRemedy.RescanInventory() end
     if UlRemedy.RefreshVendor then UlRemedy.RefreshVendor() end
+    if UlRemedy.RefreshReminders then UlRemedy.RefreshReminders() end
     if UlRemedy.RefreshOptions then UlRemedy.RefreshOptions() end
 end
 
@@ -253,6 +260,10 @@ SlashCmdList["ULREMEDY"] = function(msg)
     end
     if cmd == "pt" then
         if UlRemedy.PlaytimeDebug then UlRemedy.PlaytimeDebug() end
+        return
+    end
+    if cmd == "remind" then
+        if UlRemedy.RemindersReport then UlRemedy.RemindersReport() end
         return
     end
     if cmd == "vendorreset" then

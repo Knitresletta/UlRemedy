@@ -1,6 +1,6 @@
 # UlRemedy
 
-A lightweight quality-of-life collection — nineteen small utilities in one WoW addon, each individually toggleable with a slash command. Settings persist between sessions.
+A lightweight quality-of-life collection — twenty-one small utilities in one WoW addon, each individually toggleable with a slash command. Settings persist between sessions.
 
 ## Features
 
@@ -42,6 +42,8 @@ A lightweight quality-of-life collection — nineteen small utilities in one WoW
 
 **Vendor Bags** — A bag panel docked to the right of the vendor showing everything in your bags. One click sells an item; green and better items ask first, locked items, quest items and items without a vendor value are never sold. Shift-click links an item in chat. A search box dims everything that does not match. While the panel is on, Blizzard's own bags stay closed at vendors; `/ur vendorbags` turns it off to get them back.
 
+**Reminders** — A small panel at the top of the screen that says what you are missing, out of combat only. *Class Reminders*, anywhere: a Rogue without a lethal or non-lethal poison, an Enhancement Shaman without imbues on both weapons (other Shamans oil their weapon like everyone else, since imbue and oil share the slot), a Beast Mastery or Survival Hunter or a Warlock without a pet, and a Mage, Priest, Warrior, Druid or Shaman not wearing their own raid buff. *Instance Reminders*, in Mythic and Mythic+ dungeons and every raid: no flask, not Well Fed, no oil or stone on the weapon, and a warning when one has under ten minutes left; one chat line on entry. Only things your class can actually do are checked. Drag the panel where you want it. `/ur remind` prints what it sees.
+
 Hold **Shift** while interacting to bypass the quest, gossip and cinematic automation for that one interaction.
 
 ## Commands
@@ -78,6 +80,8 @@ Type `/ur` to open the options window, one checkbox per feature, grouped by Vend
 | `/ur inventorytooltip` | Toggle the inventory lines in item tooltips |
 | `/ur vendor` | Toggle the vendor window |
 | `/ur vendorbags` | Toggle the bag panel at vendors |
+| `/ur reminders` | Toggle class reminders |
+| `/ur instancereminders` | Toggle flask, food and weapon reminders in Mythic dungeons and raids |
 
 ## Installation
 
