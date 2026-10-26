@@ -13,6 +13,13 @@
 -- recognised by aura name, so that part is English-client only, like
 -- the Auto Macro lists.
 --
+-- Since 12.1 the client hides aura data from addons ("secret values")
+-- while combat, encounter, challenge mode or PvP match restrictions are
+-- in effect: an active Mythic+ key hides every buff for the whole run.
+-- A missing aura means nothing then, so the aura-based reminders (raid
+-- buff, poisons, flask, food) are skipped until the restriction lifts;
+-- pet and weapon-enchant checks do not depend on auras and stay.
+--
 -- The panel is drawn with the shared style, sits at the top of the
 -- screen, can be dragged (position saved in UlRemedyDB.reminderPos) and
 -- hides itself in combat and when nothing is missing. Entering an
@@ -80,6 +87,18 @@ local function AnyKnown(list)
     return false
 end
 
+-- True while the client answers aura queries with secret values, which
+-- is the case under combat, encounter, challenge mode and PvP match
+-- restrictions. Secret names cannot be compared and
+-- GetPlayerAuraBySpellID returns nothing, so no aura check is trustworthy.
+local function AurasHidden()
+    if C_Secrets and C_Secrets.ShouldAurasBeSecret then
+        local ok, hidden = pcall(C_Secrets.ShouldAurasBeSecret)
+        if ok and hidden then return true end
+    end
+    return false
+end
+
 local function HasAura(spellID)
     if not (C_UnitAuras and C_UnitAuras.GetPlayerAuraBySpellID) then return false end
     local ok, aura = pcall(C_UnitAuras.GetPlayerAuraBySpellID, spellID)
@@ -94,20 +113,27 @@ local function AnyAura(list)
 end
 
 -- The first helpful aura whose name passes the test, with seconds left
--- (0 when it does not expire). Nothing on a failure.
+-- (0 when it does not expire). The third value is true when a secret
+-- name was seen, meaning the answer cannot be trusted. Nothing on a failure.
 local function FindAura(test)
     if not (AuraUtil and AuraUtil.ForEachAura) then return nil end
-    local found, left
+    local found, left, hidden
     pcall(AuraUtil.ForEachAura, "player", "HELPFUL", nil, function(aura)
         local name = aura and aura.name
-        if type(name) == "string" and not (issecretvalue and issecretvalue(name)) and test(name) then
+        if issecretvalue and issecretvalue(name) then
+            hidden = true
+        elseif type(name) == "string" and test(name) then
             found = name
             local exp = aura.expirationTime
-            if type(exp) == "number" and exp > 0 then left = exp - GetTime() else left = 0 end
+            if type(exp) == "number" and not (issecretvalue and issecretvalue(exp)) and exp > 0 then
+                left = exp - GetTime()
+            else
+                left = 0
+            end
             return true
         end
     end, true)
-    return found, left
+    return found, left, hidden
 end
 
 local function SpellIcon(id)
@@ -141,18 +167,22 @@ local function ClassReminders(out)
     local _, class = UnitClass("player")
     local specIndex = GetSpecialization and GetSpecialization()
     local specID = specIndex and GetSpecializationInfo and GetSpecializationInfo(specIndex)
+    local hidden = AurasHidden()
 
-    for _, b in ipairs(RAID_BUFFS) do
-        if SpellKnown(b.spell) and not HasAura(b.spell) then
-            out[#out + 1] = { icon = SpellIcon(b.spell), text = b.label .. " is not up" }
+    if not hidden then
+        for _, b in ipairs(RAID_BUFFS) do
+            if SpellKnown(b.spell) and not HasAura(b.spell) then
+                out[#out + 1] = { icon = SpellIcon(b.spell), text = b.label .. " is not up" }
+            end
         end
     end
 
     if class == "ROGUE" then
-        if AnyKnown(LETHAL_POISONS) and not AnyAura(LETHAL_POISONS) then
+        -- Poisons are auras, so there is nothing to say while they are hidden.
+        if not hidden and AnyKnown(LETHAL_POISONS) and not AnyAura(LETHAL_POISONS) then
             out[#out + 1] = { icon = SpellIcon(LETHAL_POISONS[1]), text = "No lethal poison" }
         end
-        if AnyKnown(NONLETHAL_POISONS) and not AnyAura(NONLETHAL_POISONS) then
+        if not hidden and AnyKnown(NONLETHAL_POISONS) and not AnyAura(NONLETHAL_POISONS) then
             out[#out + 1] = { icon = SpellIcon(NONLETHAL_POISONS[1]), text = "No non-lethal poison" }
         end
     elseif class == "SHAMAN" then
@@ -187,20 +217,27 @@ end
 local function InstanceReminders(out, kind)
     local _, class = UnitClass("player")
 
-    local flask, flaskLeft = FindAura(function(n) return n:find("^Flask") or n:find("^Phial") end)
-    if not flask then
-        out[#out + 1] = { icon = 134827, text = "No flask" }
-    elseif flaskLeft and flaskLeft > 0 and flaskLeft < EXPIRY_WARN then
-        out[#out + 1] = { icon = 134827, text = flask .. ExpiryText(flaskLeft) }
-    end
+    if not AurasHidden() then
+        local flask, flaskLeft, hidden = FindAura(function(n) return n:find("^Flask") or n:find("^Phial") end)
+        if flask then
+            if flaskLeft and flaskLeft > 0 and flaskLeft < EXPIRY_WARN then
+                out[#out + 1] = { icon = 134827, text = flask .. ExpiryText(flaskLeft) }
+            end
+        elseif not hidden then
+            out[#out + 1] = { icon = 134827, text = "No flask" }
+        end
 
-    -- Feasts and some foods give variants like "Hearty Well Fed", so
-    -- match on the phrase rather than the exact name.
-    local fed, fedLeft = FindAura(function(n) return n:find("Well Fed", 1, true) ~= nil end)
-    if not fed then
-        out[#out + 1] = { icon = 133971, text = "Not Well Fed" }
-    elseif fedLeft and fedLeft > 0 and fedLeft < EXPIRY_WARN then
-        out[#out + 1] = { icon = 133971, text = fed .. ExpiryText(fedLeft) }
+        -- Feasts and some foods give variants like "Hearty Well Fed", so
+        -- match on the phrase rather than the exact name.
+        local fed, fedLeft
+        fed, fedLeft, hidden = FindAura(function(n) return n:find("Well Fed", 1, true) ~= nil end)
+        if fed then
+            if fedLeft and fedLeft > 0 and fedLeft < EXPIRY_WARN then
+                out[#out + 1] = { icon = 133971, text = fed .. ExpiryText(fedLeft) }
+            end
+        elseif not hidden then
+            out[#out + 1] = { icon = 133971, text = "Not Well Fed" }
+        end
     end
 
     -- An Enhancement Shaman's imbues live in the slot an oil would use,
@@ -363,6 +400,9 @@ function UlRemedy.RemindersReport()
     print(UlRemedy.name .. ": reminders, class " .. (ClassOn() and "on" or "off")
         .. ", instance " .. (InstanceOn() and "on" or "off")
         .. ", here: " .. (kind or "not a mythic dungeon or raid") .. ".")
+    if AurasHidden() then
+        print("  the game hides your buffs from addons right now (active key, encounter or combat), so flask, food, raid buff and poison checks are paused")
+    end
     if #items == 0 then
         print("  nothing missing right now")
     else
@@ -388,6 +428,7 @@ frame:RegisterEvent("UNIT_EXITED_VEHICLE")
 frame:RegisterUnitEvent("UNIT_AURA", "player")
 frame:RegisterUnitEvent("UNIT_PET", "player")
 frame:RegisterUnitEvent("UNIT_INVENTORY_CHANGED", "player")
+pcall(frame.RegisterEvent, frame, "ADDON_RESTRICTION_STATE_CHANGED")
 frame:SetScript("OnEvent", function(self, event, arg1)
     if event == "PLAYER_REGEN_DISABLED" then
         Hide()
