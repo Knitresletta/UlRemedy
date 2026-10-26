@@ -194,11 +194,13 @@ local function InstanceReminders(out, kind)
         out[#out + 1] = { icon = 134827, text = flask .. ExpiryText(flaskLeft) }
     end
 
-    local fed, fedLeft = FindAura(function(n) return n == "Well Fed" end)
+    -- Feasts and some foods give variants like "Hearty Well Fed", so
+    -- match on the phrase rather than the exact name.
+    local fed, fedLeft = FindAura(function(n) return n:find("Well Fed", 1, true) ~= nil end)
     if not fed then
         out[#out + 1] = { icon = 133971, text = "Not Well Fed" }
     elseif fedLeft and fedLeft > 0 and fedLeft < EXPIRY_WARN then
-        out[#out + 1] = { icon = 133971, text = "Well Fed" .. ExpiryText(fedLeft) }
+        out[#out + 1] = { icon = 133971, text = fed .. ExpiryText(fedLeft) }
     end
 
     -- An Enhancement Shaman's imbues live in the slot an oil would use,
