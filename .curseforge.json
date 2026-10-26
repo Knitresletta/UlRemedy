@@ -3,5 +3,8 @@
   "default_release_type": "release",
   "exclude": [
     "REVIEW.md"
+  ],
+  "default_game_versions": [
+    "12.1.5"
   ]
 }
